@@ -1,0 +1,96 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+header {
+    background-color: #333;
+    padding: 10px;
+    color: #fff;
+}
+
+header h1 {
+    display: inline-block;
+    font-size: 34px;
+}
+
+.filter-section {
+    background-color: #fff;
+    padding: 20px;
+}
+
+.filter-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.filters select{
+    margin-right: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.filters input{
+    margin-right: 10px;
+} 
+
+#costValue {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.dog-listing {
+    padding: 40px 0;
+    background-color: #fff;
+}
+
+.dog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.dog-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dog-card img {
+    width: 100%;          
+    height: 295px;        
+    object-fit: cover;    
+    border-radius: 8px;   
+}
+
+.dog-card h3 {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.dog-card p {
+    margin: 5px 0;
+}
+
+footer {
+    background-color: #333;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
