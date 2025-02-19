@@ -1,54 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pet Haven - Dog Listings</title>
-    <link rel="stylesheet" href="../static/css/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../static/css/styles.css" />
+  </head>
+  <body>
     <header>
-        <div class="container">
-            <h1>Pet Haven</h1>
-        </div>
+      <div class="container">
+        <h1>Pet Haven</h1>
+      </div>
     </header>
 
     <section class="filter-section">
-        <div class="container">
-            <h2>Find Your Perfect Dog</h2>
-            <div class="filters">
-                <select id="breedFilter">
-                    <option value="">All Breeds</option>
-                    <option value="Labrador">Labrador</option>
-                    <option value="Bulldog">Bulldog</option>
-                    <option value="Poodle">Poodle</option>
-                </select>
-                <select id="ageFilter">
-                    <option value="">All Ages</option>
-                    <option value="Puppy">Puppy</option>
-                    <option value="Adult">Adult</option>
-                    <option value="Senior">Senior</option>
-                </select>
-                <input type="range" id="costFilter" min="0" max="5000" value="5000">
-                <span id="costValue">Max Cost: Rs.5000</span>
-            </div>
+      <div class="container">
+        <h2>Find Your Perfect Dog</h2>
+        <div class="filters">
+          <select id="breedFilter">
+            <option value="">All Breeds</option>
+            <option value="Labrador">Labrador</option>
+            <option value="Bulldog">Bulldog</option>
+            <option value="Poodle">Poodle</option>
+          </select>
+          <select id="ageFilter">
+            <option value="">All Ages</option>
+            <option value="Puppy">Puppy</option>
+            <option value="Adult">Adult</option>
+            <option value="Senior">Senior</option>
+          </select>
+          <input type="range" id="costFilter" min="0" max="5000" value="5000" />
+          <span id="costValue">Max Cost: Rs.5000</span>
         </div>
+      </div>
     </section>
 
     <section class="dog-listing">
-        <div class="container">
-            <div id="dogGrid" class="dog-grid">
-                <!-- Dog items will be inserted here dynamically -->
-            </div>
-        </div>
+      <div class="container">
+        <div id="dogGrid" class="dog-grid"></div>
+      </div>
     </section>
 
     <footer>
-        <div class="container">
-            <p>&copy; 2025 Pet Haven. All Rights Reserved.</p>
-        </div>
+      <div class="container">
+        <p>&copy; 2025 Pet Haven. All Rights Reserved.</p>
+      </div>
     </footer>
 
     <script src="../static/js/script.js"></script>
-</body>
+  </body>
 </html>
