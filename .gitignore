@@ -1,0 +1,20 @@
+
+*.pyc
+__pycache__/
+
+.idea/
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Virtual environment
+venv/
+env/
+.env
+
+# Database (optional, but good practice)
+*.db
+*.sqlite
+*.sqlite3

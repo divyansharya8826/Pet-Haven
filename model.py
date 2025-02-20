@@ -16,7 +16,9 @@ class Dogs(db.Model):
     image = db.Column(db.String(200), nullable =False)
 
     def __repr__(self):
+        print(self.name,self.breed)
         return f"<Dog {self.name} - {self.breed}>"
+    
 
 with app.app_context():
     db.create_all()
