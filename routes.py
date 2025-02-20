@@ -2,11 +2,13 @@ from flask import Flask, jsonify, render_template
 import os
 from model import app, db, Dogs
 
-
+# route for home page
 @app.route("/")
 def home():
     return render_template("petshop.html")
 
+
+# route for fetching dogs data from the database
 @app.route('/api/dogs', methods=['GET'])
 def get_dogs():
     dogs = Dogs.query.all()

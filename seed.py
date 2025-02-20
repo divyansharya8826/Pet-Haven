@@ -9,6 +9,7 @@ dogs = [
     { 'name': "Daisy", 'breed': "Poodle", 'age': "Adult", 'price': 2500, 'image': "static/images/daisy.jpg" },
 ]
 
+# inserting records in dogs table
 with app.app_context():
     for dog in dogs:
         new_dog = Dogs(**dog)
