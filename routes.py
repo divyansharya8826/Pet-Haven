@@ -10,8 +10,6 @@ app.secret_key = 'your_secret_key'
 def home():
     return render_template("petshop.html")
 
-
-# route for fetching dogs data from the database
 @app.route("/cart")
 def cart_page():
     cart = session.get("cart", [])  # Retrieve cart from session

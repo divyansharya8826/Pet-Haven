@@ -4,27 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pet Haven - Dog Listings</title>
-<<<<<<< HEAD
-    <link rel="stylesheet" href="../static/css/styles.css" />
+    <link rel="stylesheet" href="/static/css/styles.css">
   </head>
   <body>
     <header>
       <div class="container">
         <h1>Pet Haven</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/cart">cart(<span id="cart-count">0</span>)</a>
+        </nav>
       </div>
-=======
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <header>
-        <div class="container">
-            <h1>Pet Haven</h1>
-            <nav>
-                <a href="/">Home</a>
-                <a href="{{ url_for('cart_page') }}">cart(<span id="cart-count">{{ cart|length }}</span>)</a>
-            </nav>
-        </div>
->>>>>>> 1c886ca (cart)
     </header>
 
     <section class="filter-section">
@@ -67,27 +57,21 @@
           <select id="ageFilter">
             <option value="">All Ages</option>
             <option value="Puppy">Puppy</option>
-            <option value="Puppy">Young</option>
+            <option value="Young">Young</option>
             <option value="Adult">Adult</option>
-            <option value="Puppy">Mature</option>
+            <option value="Mature">Mature</option>
             <option value="Senior">Senior</option>
           </select>
-          <input type="range" id="costFilter" min="0" max="5000" value="5000" />
-          <span id="costValue">Max Cost: Rs.5000</span>
+          <input type="range" id="costFilter" min="0" max="20000" value="20000" />
+          <span id="costValue">Max Cost: Rs.20000</span>
         </div>
       </div>
     </section>
 
     <section class="dog-listing">
-<<<<<<< HEAD
       <div class="container">
         <div id="dogGrid" class="dog-grid"></div>
       </div>
-=======
-        <div class="container">
-            <div id="dogGrid" class="dog-grid"></div>
-        </div>
->>>>>>> 1c886ca (cart)
     </section>
 
     <footer>
@@ -96,11 +80,6 @@
       </div>
     </footer>
 
-<<<<<<< HEAD
-    <script src="../static/js/script.js"></script>
+    <script src="/static/js/script.js"></script>
   </body>
-=======
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
->>>>>>> 1c886ca (cart)
 </html>
