@@ -88,7 +88,40 @@ function attachCartListeners() {
     });
 }
 
-// Attach event listeners to remove buttons in cart
+document.addEventListener("DOMContentLoaded", function () {
+    fetchDogs();
+    updateCartCount();  // Fetch and update cart count on page load
+});
+
+// Function to fetch cart count from backend
+function updateCartCount() {
+    fetch("/api/cart_count")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("cart-count").textContent = data.cart_count;  //Update UI
+        })
+        .catch(error => console.error("Error fetching cart count:", error));
+}
+function attachCartListeners() {
+    document.querySelectorAll(".add-to-cart").forEach(button => {
+        button.addEventListener("click", function () {
+            let dogId = this.getAttribute("data-id");
+
+            fetch("/cart/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ dog_id: dogId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                updateCartCount();  // Call the function to update cart count
+            })
+            .catch(error => console.error("Error adding to cart:", error));
+        });
+    });
+}
+
 function attachRemoveListeners() {
     document.querySelectorAll(".remove-from-cart").forEach(button => {
         button.addEventListener("click", function () {
@@ -102,9 +135,23 @@ function attachRemoveListeners() {
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                location.reload(); // Refresh cart page
+                updateCartCount();  // Update cart count
+                removeDogFromUI(dogId);  // Remove dog from UI without reloading
             })
             .catch(error => console.error("Error removing from cart:", error));
         });
     });
+}
+
+// Function to Remove Item from UI Without Reloading
+function removeDogFromUI(dogId) {
+    let cartItem = document.querySelector(`.cart-item[data-id='${dogId}']`);
+    if (cartItem) {
+        cartItem.remove();
+    }
+
+    // If cart is empty after removal, show "empty cart" message
+    if (document.querySelectorAll(".cart-item").length === 0) {
+        document.getElementById("cart-list").innerHTML = "<p>Your cart is empty.</p>";
+    }
 }

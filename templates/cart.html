@@ -222,10 +222,11 @@ h2 {
 
     <div class="container">
         <h2>Your Cart</h2>
+        
         {% if cart %}
             <div class="cart-items">
                 {% for item in cart %}
-                    <div class="cart-item">
+                    <div class="cart-item" data-id="{{ item.id }}">
                         <img src="{{ item.image }}" alt="{{ item.name }}">
                         <div class="item-details">
                             <h3>{{ item.name }}</h3>
@@ -250,8 +251,10 @@ h2 {
         {% endif %}
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Add to Cart Functionality
             $(".add-to-cart").click(function() {
                 let dogId = $(this).data("id");
     
@@ -270,8 +273,38 @@ h2 {
                     }
                 });
             });
+
+            // Remove from Cart Functionality
+            $(".remove-from-cart").click(function() {
+                let dogId = $(this).data("id");
+
+                $.ajax({
+                    url: "/cart/remove",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ dog_id: dogId }),
+                    success: function(response) {
+                        alert("Dog removed from cart!");
+
+                        // Update cart count dynamically
+                        $("#cart-count").text(response.cart_count);
+
+                        // Remove item from UI without reloading
+                        $(".cart-item[data-id='" + dogId + "']").remove();
+
+                        // If cart is empty, show "Your cart is empty"
+                        if ($(".cart-item").length === 0) {
+                            $(".cart-items").html("<p>Your cart is empty.</p>");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error removing from cart:", error);
+                        alert("Failed to remove dog from cart. Try again!");
+                    }
+                });
+            });
         });
     </script>
-    
 </body>
+
 </html>
