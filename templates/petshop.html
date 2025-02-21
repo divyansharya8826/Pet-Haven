@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pet Haven - Dog Listings</title>
+<<<<<<< HEAD
     <link rel="stylesheet" href="../static/css/styles.css" />
   </head>
   <body>
@@ -11,6 +12,19 @@
       <div class="container">
         <h1>Pet Haven</h1>
       </div>
+=======
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Pet Haven</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="{{ url_for('cart_page') }}">cart(<span id="cart-count">{{ cart|length }}</span>)</a>
+            </nav>
+        </div>
+>>>>>>> 1c886ca (cart)
     </header>
 
     <section class="filter-section">
@@ -65,9 +79,15 @@
     </section>
 
     <section class="dog-listing">
+<<<<<<< HEAD
       <div class="container">
         <div id="dogGrid" class="dog-grid"></div>
       </div>
+=======
+        <div class="container">
+            <div id="dogGrid" class="dog-grid"></div>
+        </div>
+>>>>>>> 1c886ca (cart)
     </section>
 
     <footer>
@@ -76,6 +96,11 @@
       </div>
     </footer>
 
+<<<<<<< HEAD
     <script src="../static/js/script.js"></script>
   </body>
+=======
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+>>>>>>> 1c886ca (cart)
 </html>
