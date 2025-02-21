@@ -1,108 +1,73 @@
 document.addEventListener("DOMContentLoaded", function () {
-<<<<<<< HEAD
-  let dogs = [];
-  const dogGrid = document.getElementById("dogGrid");
-  const breedFilter = document.getElementById("breedFilter");
-  const ageFilter = document.getElementById("ageFilter");
-  const costFilter = document.getElementById("costFilter");
-  const costValue = document.getElementById("costValue");
+    fetchDogs();  // Fetch and display dogs when the page loads
 
-  fetchDogs();
-
-  costFilter.addEventListener("input", updateCostValue);
-
-  breedFilter.addEventListener("change", filterDogs);
-  ageFilter.addEventListener("change", filterDogs);
-  costFilter.addEventListener("input", filterDogs);
-
-  function fetchDogs() {
-    fetch("/api/dogs")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        dogs = data;
-        const maxPrice = dogs.reduce((max, dog) => Math.max(max, dog.price), 0);
-
-        costFilter.max = maxPrice;
-        costFilter.value = maxPrice;
-        updateCostValue();
-        displayDogs(dogs); // Initial display
-      })
-      .catch((error) => console.error("Error fetching dogs:", error));
-  }
-
-  function updateCostValue() {
-    costValue.innerText = `Max Cost: ₹${costFilter.value}`;
-  }
-
-  function filterDogs() {
-    const breed = breedFilter.value;
-    const age = ageFilter.value;
-    const maxCost = parseInt(costFilter.value);
-
-    const filteredDogs = dogs.filter((dog) => {
-      return (
-        (breed === "" || dog.breed === breed) &&
-        (age === "" || dog.age === age) &&
-        dog.price <= maxCost
-      );
+    // Attach filter event listeners
+    document.getElementById("breedFilter").addEventListener("change", applyFilters);
+    document.getElementById("ageFilter").addEventListener("change", applyFilters);
+    document.getElementById("costFilter").addEventListener("input", function () {
+        document.getElementById("costValue").textContent = "Max Cost: Rs." + this.value;
+        applyFilters();
     });
-
-    displayDogs(filteredDogs);
-  }
-
-  function displayDogs(dogList) {
-    dogGrid.innerHTML = ""; // Clear previous results
-    if (dogList.length === 0) {
-      dogGrid.innerHTML = "<p>No dogs match the selected criteria.</p>";
-      return;
-    }
-
-    dogList.forEach((dog) => {
-      const dogCard = document.createElement("div");
-      dogCard.classList.add("dog-card");
-      dogCard.innerHTML = `
-                <img src="${dog.image}" alt="${dog.name}">
-                <h3>${dog.name}</h3>
-                <p>Breed: ${dog.breed}</p>
-                <p>Age: ${dog.age}</p>
-                <p>Cost: ₹${dog.price}</p>
-            `;
-      dogGrid.appendChild(dogCard);
-=======
-    fetchDogs();
 });
 
+// Fetch dogs from the backend
+let allDogs = [];  // Store the full dog list for filtering
+
 function fetchDogs() {
-    fetch("/api/dogs") // Fetch dog data from Flask backend
+    fetch("/api/dogs")  // Fetch dog data from Flask backend
         .then(response => response.json())
         .then(dogs => {
-            let dogGrid = document.getElementById("dogGrid");
-            dogGrid.innerHTML = ""; // Clear previous listings
-
-            dogs.forEach(dog => {
-                let dogCard = `
-                    <div class="dog-card">
-                        <img src="${dog.image}" alt="${dog.name}">
-                        <h3>${dog.name}</h3>
-                        <p>Breed: ${dog.breed}</p>
-                        <p>Age: ${dog.age}</p>
-                        <p>Price: Rs.${dog.price}</p>
-                        <button class="add-to-cart" data-id="${dog.id}">Add to Cart</button>
-                    </div>
-                `;
-                dogGrid.innerHTML += dogCard;
-            });
-
-            attachCartListeners(); // Attach event listeners after adding buttons
+            allDogs = dogs; // Store all dogs for filtering
+            displayDogs(dogs); // Display all dogs initially
         })
         .catch(error => console.error("Error fetching dogs:", error));
 }
 
+// Function to display dogs
+function displayDogs(dogs) {
+    let dogGrid = document.getElementById("dogGrid");
+    dogGrid.innerHTML = ""; // Clear previous listings
+
+    if (dogs.length === 0) {
+        dogGrid.innerHTML = "<p>No dogs match your filters.</p>";
+        return;
+    }
+
+    dogs.forEach(dog => {
+        let dogCard = `
+            <div class="dog-card">
+                <img src="${dog.image}" alt="${dog.name}">
+                <h3>${dog.name}</h3>
+                <p>Breed: ${dog.breed}</p>
+                <p>Age: ${dog.age}</p>
+                <p>Price: Rs.${dog.price}</p>
+                <button class="add-to-cart" data-id="${dog.id}">Add to Cart</button>
+            </div>
+        `;
+        dogGrid.innerHTML += dogCard;
+    });
+
+    attachCartListeners(); // Attach event listeners after adding buttons
+}
+
+// Function to apply filters
+function applyFilters() {
+    let breedFilter = document.getElementById("breedFilter").value;
+    let ageFilter = document.getElementById("ageFilter").value;
+    let maxCost = document.getElementById("costFilter").value;
+
+    let filteredDogs = allDogs.filter(dog => {
+        return (
+            (breedFilter === "" || dog.breed === breedFilter) &&
+            (ageFilter === "" || dog.age === ageFilter) &&
+            (dog.price <= maxCost)
+        );
+    });
+
+    displayDogs(filteredDogs);
+}
+
+// Attach event listeners to cart buttons
 function attachCartListeners() {
     document.querySelectorAll(".add-to-cart").forEach(button => {
         button.addEventListener("click", function () {
@@ -123,6 +88,7 @@ function attachCartListeners() {
     });
 }
 
+// Attach event listeners to remove buttons in cart
 function attachRemoveListeners() {
     document.querySelectorAll(".remove-from-cart").forEach(button => {
         button.addEventListener("click", function () {
@@ -140,7 +106,5 @@ function attachRemoveListeners() {
             })
             .catch(error => console.error("Error removing from cart:", error));
         });
->>>>>>> 1c886ca (cart)
     });
-  }
-});
+}

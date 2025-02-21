@@ -2,27 +2,18 @@ from flask import Flask, jsonify, render_template, request, session
 import os
 from model import app, db, Dogs
 
-<<<<<<< HEAD
-# route for home page
-=======
 # Enable server-side sessions for cart storage
 app.secret_key = 'your_secret_key'  
 
->>>>>>> 1c886ca (cart)
 @app.route("/")
 def home():
     return render_template("petshop.html")
 
-<<<<<<< HEAD
-
-# route for fetching dogs data from the database
-=======
 @app.route("/cart")
 def cart_page():
     cart = session.get("cart", [])  # Retrieve cart from session
     return render_template("cart.html", cart=cart)
 
->>>>>>> 1c886ca (cart)
 @app.route('/api/dogs', methods=['GET'])
 def get_dogs():
     dogs = Dogs.query.all()
