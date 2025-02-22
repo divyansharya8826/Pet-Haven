@@ -67,5 +67,28 @@ def add_to_cart():
 
     return jsonify({"message": "Dog added successfully!", "cart_count": len(cart)})
 
+@app.route("/api/cart_count", methods=["GET"])
+def get_cart_count():
+    cart = session.get("cart", [])  # Get cart items from session
+    return jsonify({"cart_count": len(cart)}) 
+
+@app.route("/cart/remove", methods=["POST"])
+def remove_from_cart():
+    data = request.get_json()
+    dog_id = data.get("dog_id")
+
+    if not dog_id:
+        return jsonify({"error": "Invalid request"}), 400
+
+    cart = session.get("cart", [])
+
+    # Remove the selected dog from the cart
+    cart = [dog for dog in cart if str(dog["id"]) != str(dog_id)]
+    session["cart"] = cart  # Save updated cart in session
+    session.modified = True  # Ensure session updates
+
+    return jsonify({"message": "Dog removed from cart!", "cart_count": len(cart)})
+
+
 if __name__ == "__main__":
     app.run(debug=True)

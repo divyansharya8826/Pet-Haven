@@ -38,6 +38,13 @@ dogs = [
     {"name": "Nova", "breed": "Cane Corso", "age": "Mature", "price": 13700, "image": "static/images/caneCorso.jpg"},
     {"name": "Hazel", "breed": "Irish Setter", "age": "Adult", "price": 8800, "image": "static/images/irishSetter.jpg"},
     {"name": "Rusty", "breed": "Weimaraner", "age": "Young", "price": 9200, "image": "static/images/weimaraner.jpg"},
+    {"name": "Sky", "breed": "Newfoundland", "age": "Senior", "price": 15500, "image": "static/images/newfoundland.jpg"},
+    {"name": "Jasper", "breed": "Alaskan Malamute", "age": "Adult", "price": 13000, "image": "static/images/alaskanMalamute.jpg"},
+    {"name": "Penny", "breed": "Papillon", "age": "Young", "price": 6700, "image": "static/images/papillon.jpg"},
+    {"name": "Benny", "breed": "Basset Hound", "age": "Adult", "price": 7700, "image": "static/images/bassethound.jpg"},
+    {"name": "Nova", "breed": "Cane Corso", "age": "Mature", "price": 13700, "image": "static/images/caneCorso.jpg"},
+    {"name": "Hazel", "breed": "Irish Setter", "age": "Adult", "price": 8800, "image": "static/images/irishSetter.jpg"},
+    {"name": "Rusty", "breed": "Weimaraner", "age": "Young", "price": 9200, "image": "static/images/weimaraner.jpg"},
     {"name": "Sky", "breed": "Newfoundland", "age": "Senior", "price": 15500, "image": "static/images/newfoundland.jpg"}
 ]
 
