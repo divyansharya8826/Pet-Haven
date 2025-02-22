@@ -10,10 +10,6 @@ app.secret_key = 'your_secret_key'
 def home():
     return render_template("petshop.html")
 
-@app.route("/cart")
-def cart_page():
-    cart = session.get("cart", [])  # Retrieve cart from session
-    return render_template("cart.html", cart=cart)
 
 @app.route('/api/dogs', methods=['GET'])
 def get_dogs():
@@ -30,6 +26,11 @@ def get_dogs():
         for dog in dogs
     ]
     return jsonify(dogs_data)
+
+@app.route("/cart")
+def cart_page():
+    cart = session.get("cart", [])  # Retrieve cart from session
+    return render_template("cart.html", cart=cart)
 
 @app.route("/cart/add", methods=['POST'])
 def add_to_cart():
