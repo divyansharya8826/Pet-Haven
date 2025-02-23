@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
+import uuid
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///petheaven.db'
@@ -9,7 +10,7 @@ db = SQLAlchemy(app)
 
 # dogs table creation
 class Dogs(db.Model):
-    dog_id = db.Column(db.Integer, primary_key=True)
+    dog_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(60), nullable=False)
     breed = db.Column(db.String(60), nullable=False)
     age = db.Column(db.String(20), nullable=False)

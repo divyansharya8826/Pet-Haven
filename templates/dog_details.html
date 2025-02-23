@@ -7,9 +7,10 @@
     <h1>{{ dog.name }}</h1>
     <p>Breed: {{ dog.breed }}</p>
     <p>Age: {{ dog.age }}</p>
-    <p>Price: Rs. {{ dog.price }}</p>
-    <img src="{{ dog.image }}" alt="{{ dog.name }}" width="300">
+    <p>Price: Rs.{{ dog.price }}</p>
+    <img src="{{ url_for('static', filename=dog.image[14:]) }}" alt="{{ dog.name }}" width="300">
     <br>
-    <a href="/">Back to Listings</a>
+    <a href="/">Back to Gallery</a>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

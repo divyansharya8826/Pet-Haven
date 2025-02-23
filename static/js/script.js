@@ -394,11 +394,13 @@ function displayDogs(dogs) {
     dogCard.classList.add("dog-card");
 
     dogCard.innerHTML = `
-      <img src="${dog.image}" alt="${dog.name}" style="width: 100%; height: 200px; object-fit: cover;">
-      <h3>${dog.name}</h3>
-      <p>Breed: ${dog.breed}</p>
-      <p>Age: ${dog.age}</p>
-      <p>Price: Rs.${dog.price}</p>
+      <a href="/dogs/${dog.id}" style="text-decoration:none;">
+        <img src="${dog.image}" alt="${dog.name}" style="width: 100%; height: 200px; object-fit: cover;">
+        <h3>${dog.name}</h3>
+        <p>Breed: ${dog.breed}</p>
+        <p>Age: ${dog.age}</p>
+        <p>Price: Rs.${dog.price}</p>
+      </a>
       <div class="dog-card-button-container">
         <button class="add-to-cart" data-id="${dog.id}">Add to Cart</button>
       </div>
