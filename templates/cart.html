@@ -4,223 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - Pet Haven</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="static/css/styles.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f7f7f7;
-    color: #333;
-}
-
-/* Header Styling */
-header {
-    background-color: #333;
-    color: white;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-header h1 {
-    margin: 0;
-    font-size: 24px;
-}
-
-nav {
-    display: flex;
-    gap: 15px;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    padding: 5px 10px;
-    transition: 0.3s;
-}
-
-nav a:hover {
-    background-color: white;
-    color: #333;
-    border-radius: 5px;
-}
-
-/* Container for Cart */
-.container {
-    width: 80%;
-    max-width: 1000px;
-    margin: 40px auto;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    text-align: center;
-    color: #ff6b6b;
-}
-
-/* Cart Items */
-.cart-items {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 10px 0;
-}
-
-.cart-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: #fff7f7;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
-}
-
-.cart-item:hover {
-    transform: scale(1.02);
-}
-
-.cart-item img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid #ff6b6b;
-}
-
-.item-details {
-    flex-grow: 1;
-}
-
-.item-details h3 {
-    margin: 5px 0;
-    font-size: 18px;
-    color: #444;
-}
-
-.item-details p {
-    margin: 3px 0;
-    font-size: 14px;
-    color: #666;
-}
-
-/* Remove Button */
-.remove-from-cart {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.remove-from-cart:hover {
-    background-color: #cc0000;
-}
-
-/* Cart Summary */
-.cart-summary {
-    text-align: center;
-    margin-top: 20px;
-    padding: 15px;
-    background: #fff3f3;
-    border-radius: 8px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.cart-summary h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-    color: #444;
-}
-
-/* Checkout Button */
-#checkout {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#checkout:hover {
-    background-color: #218838;
-}
-
-/* Empty Cart */
-.empty-cart {
-    text-align: center;
-    padding: 30px;
-}
-
-.empty-cart p {
-    font-size: 18px;
-    color: #777;
-}
-
-.empty-cart a {
-    display: inline-block;
-    margin-top: 10px;
-    text-decoration: none;
-    color: white;
-    background-color: #ff6b6b;
-    padding: 8px 15px;
-    border-radius: 5px;
-    transition: 0.3s;
-}
-
-.empty-cart a:hover {
-    background-color: #e04e4e;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        width: 90%;
-    }
-
-    .cart-item {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .cart-item img {
-        width: 80px;
-        height: 80px;
-    }
-
-    .remove-from-cart {
-        margin-top: 10px;
-        width: 100%;
-    }
-}
-
-    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
 </head>
 <body>
     <header>
-        <h1>Pet Haven</h1>
-        <nav>
-            <a href="{{ url_for('home') }}">Home</a>
-            <a href="{{ url_for('cart_page') }}">Cart (<span id="cart-count">{{ cart|length }}</span>)</a>
-        </nav>
+        <div class="container">
+            <div class="logo-container">
+                <a href="/" class="logo">Pet Haven <i class="fas fa-paw"></i></a>
+            </div>
+            <nav>
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('cart_page') }}">Cart (<span id="cart-count">{{ cart|length }}</span>)</a>
+            </nav>
+        </div>
     </header>
 
-    <div class="container">
+    <div class="cart-container">
         <h2>Your Cart</h2>
         
         {% if cart %}
@@ -250,6 +61,12 @@ h2 {
             </div>
         {% endif %}
     </div>
+
+    <footer>
+        <div class="container">
+          <p>© 2025 Pet Haven. All Rights Reserved.</p>
+        </div>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
