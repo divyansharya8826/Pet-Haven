@@ -17,7 +17,6 @@ def dog_details(dog_id):
     dog = Dogs.query.get(dog_id)
     if not dog:
         return jsonify({"error": "Dog not found"}), 404
-    return render_template('dog_details.html', dog=dog)
 
 
 @app.route('/api/dogs', methods=['GET'])

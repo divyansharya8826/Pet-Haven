@@ -216,6 +216,7 @@ nav a.cart-style {
   object-fit: cover;
   border-radius: 8px 8px 0 0;
   margin-bottom: 0.8rem;
+  cursor: pointer;
 }
 
 .dog-card h3 {
@@ -348,3 +349,66 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* Modal Background */
+.modal {
+  display: none; /* Hidden by default */
+  z-index: 1; 
+  position: fixed;
+  left: 47%;
+  top: 27%;
+  width: 360px;
+  height: 420px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  padding: 5px;
+  border: 1px solid #888;
+  width: 360px; 
+  height: 420px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align the content at the top */
+}
+
+.dog-info{
+  width: 340px; 
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.dog-info img {
+  width: 310px; 
+  height: 260px; 
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 2rem;  
+}
+
+/* Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 1px;
+  left: 330px;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
