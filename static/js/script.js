@@ -1,3 +1,21 @@
+function toggleSidebar() {
+	const sidebar = document.getElementById('sidebar');
+	const navbar = document.getElementById('navbar');
+	const mainContent = document.getElementById('mainContent');
+
+	if (sidebar.classList.contains('show')) {
+		sidebar.classList.remove('show');
+		navbar.style.left = '0';
+		navbar.style.width = '100%';
+		mainContent.style.marginLeft = '0';
+	} else {
+		sidebar.classList.add('show');
+		navbar.style.left = '250px';
+		navbar.style.width = 'calc(100% - 250px)';
+		mainContent.style.marginLeft = '250px';
+	}
+}
+
 /****************************************** fetching dogs details from the api for listing and checking the filters for apply changes in the listing */
 document.addEventListener("DOMContentLoaded", function () {
   fetchDogs();
@@ -62,23 +80,55 @@ function displayDogs(dogs) {
     dogCard.classList.add("dog-card");
 
     dogCard.innerHTML = `
-      <a href="/dogs/${dog.id}" style="text-decoration:none;">
-        <img src="${dog.image}" alt="${dog.name}" style="width: 100%; height: 200px; object-fit: cover;">
-        <h3>${dog.name}</h3>
-        <p>Breed: ${dog.breed}</p>
-        <p>Age: ${dog.age}</p>
-        <p>Price: Rs.${dog.price}</p>
-      </a>
+      <img src="${dog.image}" alt="${dog.name}" style="width: 100%; height: 200px; object-fit: cover;">
+      <h3>${dog.name}</h3>
+      <p>Breed: ${dog.breed}</p>
+      <p>Age: ${dog.age}</p>
+      <p>Price: Rs.${dog.price}</p>      
       <div class="dog-card-button-container">
         <button class="add-to-cart" data-id="${dog.id}">Add to Cart</button>
       </div>
     `;
+    const dogCardImage = dogCard.querySelector("img");
+    dogCardImage.addEventListener("click", function(){
+      displayDogDetails(dog);
+    })
     dogGrid.appendChild(dogCard);
   });
 
   updatePagination(totalPages, dogs.length);
   attachCartListeners();
 }
+
+function displayDogDetails(dog) {
+  let detailsSection = document.getElementById("dogDetails");
+  detailsSection.innerHTML = `
+      <div class="dog-info">
+          <img src="${dog.image}" alt="${dog.name}" />
+          <h2>${dog.name}</h2>
+          <p><strong>Breed:</strong> ${dog.breed}</p>
+          <p><strong>Age:</strong> ${dog.age}</p>
+          <p><strong>Price:</strong> Rs.${dog.price}</p>
+      </div>
+  `;
+  let modal = document.getElementById("dogDetailsModal");
+  modal.style.display = "block"; // Show modal
+}
+function closeModal() {
+  let modal = document.getElementById("dogDetailsModal");
+  modal.style.display = "none"; // Hide modal
+}
+
+// Attach close event to the "X" button
+document.getElementById("closeModal").addEventListener("click", closeModal);
+
+// Close the modal if the user clicks anywhere outside of the modal content
+window.addEventListener("click", function(event) {
+  let modal = document.getElementById("dogDetailsModal");
+  if (event.target === modal) {
+    closeModal();
+  }
+});
 
 /**************************************** function for updating pagination ***********************************/
 function updatePagination(totalPages, totalItems) {
