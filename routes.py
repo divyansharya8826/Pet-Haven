@@ -3,14 +3,15 @@ import os
 from model import app, db, Dogs
 import uuid
 
-# route for home page
-# Enable server-side sessions for cart storage
-app.secret_key = str(uuid.uuid4())
-
+#************************************ route for home page **************************************************
 @app.route("/")
 def home():
     return render_template("petshop.html")
 
+#************************************* secret key for the session *******************************************
+app.secret_key = str(uuid.uuid4())
+
+#************************************** Individual Dog Display route ****************************************
 
 @app.route('/dogs/<string:dog_id>', methods=['GET'])
 def dog_details(dog_id):
@@ -18,7 +19,7 @@ def dog_details(dog_id):
     if not dog:
         return jsonify({"error": "Dog not found"}), 404
 
-
+#*************************************** routes for fectching all dog details *******************************
 @app.route('/api/dogs', methods=['GET'])
 def get_dogs():
     dogs = Dogs.query.all()
@@ -35,11 +36,13 @@ def get_dogs():
     ]
     return jsonify(dogs_data)
 
+#******************************* Enable server-side sessions for cart storage *******************************
 @app.route("/cart")
 def cart_page():
     cart = session.get("cart", [])  # Retrieve cart from session
     return render_template("cart.html", cart=cart)
 
+#******************************** route for add to cart functionality ***************************************
 @app.route("/cart/add", methods=['POST'])
 def add_to_cart():
     data = request.get_json()
@@ -75,11 +78,13 @@ def add_to_cart():
 
     return jsonify({"message": "Dog added successfully!", "cart_count": len(cart)})
 
+#************************************ api for updating cart count ******************************************
 @app.route("/api/cart_count", methods=["GET"])
 def get_cart_count():
     cart = session.get("cart", [])  # Get cart items from session
     return jsonify({"cart_count": len(cart)}) 
 
+#************************************* route for removing dog entry from the cart ***************************
 @app.route("/cart/remove", methods=["POST"])
 def remove_from_cart():
     data = request.get_json()
