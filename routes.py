@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request, session
 import os
-from model import app, db, Dogs
+from models import app, db, Dogs
 import uuid
 
 #************************************ route for home page **************************************************

@@ -1,5 +1,5 @@
 import pytest
-from model import app, db, Dogs
+from models import app, db, Dogs
 
 @pytest.fixture
 def client():

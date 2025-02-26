@@ -1,4 +1,4 @@
-from model import app, db, Dogs
+from models import app, db, Dogs
 
 # dogs = [
 #     { 'name': "Buddy", 'breed': "Labrador", 'age': "Puppy", 'price': 1500, 'image': "static/images/buddy.jpg" },
