@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pet Haven - Dog Listings</title>
+    <title>Pet Haven - Dog Gallery</title> 
     <link rel="stylesheet" href="static/css/dog.css" />
     <link
       rel="stylesheet"
@@ -12,118 +12,133 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- Include Poppins font -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
   </head>
+
   <body>
-    <header>
+    <!-- Burger Icon -->
+    <div class="burger" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo">
+          <i class="fas fa-paw"></i>
+          <h2>Pet Haven</h2>
+      </div>
+      <ul class="nav-menu">
+          <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+          <li class="nav-item active"><i class="fas fa-images"></i> Dog Gallery</li>
+          <li class="nav-item"><i class="fas fa-concierge-bell"></i> Services</li>
+          <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <!-- Navbar -->
+      <div class="navbar" id="navbar">
+          <h2>Dog Gallery</h2>
+          <div class="nav-right">
+              <div class="notification">
+                  <i class="fas fa-bell fa-2x"></i>
+                  <span class="badge">2</span>
+              </div>
+              <div class="profile">
+                  <div class="profile-pic">JD</div>
+                  <span>John Doe</span>
+              </div>
+          </div>
+      </div>
+
+      <!-- Search Filter and Listing Section -->
       <div class="container">
-        <div class="logo-container">
-          <a href="/" class="logo">Pet Haven <i class="fas fa-paw"></i></a>
-        </div>
         <div class="search-bar">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search for dogs, breeds, etc..."
-          />
-          <button onclick="applyFilters()">
-            <i class="fas fa-search"></i>
-          </button>
+            <input type="text" id="searchInput" placeholder="Search for dogs, breeds, etc...">
+            <button onclick="applyFilters()"><i class="fas fa-search"></i></button>
+        
+          <nav>
+            <a class="cart-style" href="/cart">
+              <i class="fas fa-shopping-cart"></i> Cart(<span id="cart-count">0</span>)
+            </a>
+          </nav>
         </div>
-        <nav>
-          <a href="/">Home</a>
-          <a class="cart-style" href="/cart"
-            ><i class="fas fa-shopping-cart"></i> Cart(<span id="cart-count"
-              >0</span
-            >)</a
-          >
-        </nav>
-      </div>
-    </header>
 
-    <main class="main-content container">
-      <aside class="filter-section">
-        <h2>Filters</h2>
-        <div class="filters">
-          <div class="filter-group">
-            <label for="breedFilter">Breed</label>
-            <select id="breedFilter">
-              <option value="">All Breeds</option>
-              <option value="Labrador">Labrador</option>
-              <option value="Bulldog">Bulldog</option>
-              <option value="Poodle">Poodle</option>
-              <option value="Beagle">Beagle</option>
-              <option value="German Shepherd">German Shepherd</option>
-              <option value="Golden Retriever">Golden Retriever</option>
-              <option value="Shih Tzu">Shih Tzu</option>
-              <option value="Dachshund">Dachshund</option>
-              <option value="Rottweiler">Rottweiler</option>
-              <option value="Pomeranian">Pomeranian</option>
-              <option value="Husky">Husky</option>
-              <option value="Dalmatian">Dalmatian</option>
-              <option value="Border Collie">Border Collie</option>
-              <option value="Corgi">Corgi</option>
-              <option value="Samoyed">Samoyed</option>
-              <option value="Maltese">Maltese</option>
-              <option value="Doberman">Doberman</option>
-              <option value="Saint Bernard">Saint Bernard</option>
-              <option value="Chihuahua">Chihuahua</option>
-              <option value="Akita">Akita</option>
-              <option value="Great Dane">Great Dane</option>
-              <option value="Shiba Inu">Shiba Inu</option>
-              <option value="Alaskan Malamute">Alaskan Malamute</option>
-              <option value="Papillon">Papillon</option>
-              <option value="Basset Hound">Basset Hound</option>
-              <option value="Cane Corso">Cane Corso</option>
-              <option value="Irish Setter">Irish Setter</option>
-              <option value="Weimaraner">Weimaraner</option>
-              <option value="Newfoundland">Newfoundland</option>
-              <option value="Belgian Malinois">Belgian Malinois</option>
-            </select>
-          </div>
+        <div class="filter-list-container">
+          <aside class="filter-section">
+            <h2>Filters</h2>
+            <div class="filters">
+              <div class="filter-group">
+                <label for="breedFilter">Breed</label>
+                <select id="breedFilter">
+                  <option value="">All Breeds</option>
+                  <option value="Labrador">Labrador</option>
+                  <option value="Bulldog">Bulldog</option>
+                  <option value="Poodle">Poodle</option>
+                  <option value="Beagle">Beagle</option>
+                  <option value="German Shepherd">German Shepherd</option>
+                  <option value="Golden Retriever">Golden Retriever</option>
+                  <option value="Shih Tzu">Shih Tzu</option>
+                  <option value="Dachshund">Dachshund</option>
+                  <option value="Rottweiler">Rottweiler</option>
+                  <option value="Pomeranian">Pomeranian</option>
+                  <option value="Husky">Husky</option>
+                  <option value="Dalmatian">Dalmatian</option>
+                  <option value="Border Collie">Border Collie</option>
+                  <option value="Corgi">Corgi</option>
+                  <option value="Samoyed">Samoyed</option>
+                  <option value="Maltese">Maltese</option>
+                  <option value="Doberman">Doberman</option>
+                  <option value="Saint Bernard">Saint Bernard</option>
+                  <option value="Chihuahua">Chihuahua</option>
+                  <option value="Akita">Akita</option>
+                  <option value="Great Dane">Great Dane</option>
+                  <option value="Shiba Inu">Shiba Inu</option>
+                  <option value="Alaskan Malamute">Alaskan Malamute</option>
+                  <option value="Papillon">Papillon</option>
+                  <option value="Basset Hound">Basset Hound</option>
+                  <option value="Cane Corso">Cane Corso</option>
+                  <option value="Irish Setter">Irish Setter</option>
+                  <option value="Weimaraner">Weimaraner</option>
+                  <option value="Newfoundland">Newfoundland</option>
+                  <option value="Belgian Malinois">Belgian Malinois</option>
+                </select>
+              </div>
 
-          <div class="filter-group">
-            <label for="ageFilter">Age</label>
-            <select id="ageFilter">
-              <option value="">All Ages</option>
-              <option value="Puppy">Puppy</option>
-              <option value="Young">Young</option>
-              <option value="Adult">Adult</option>
-              <option value="Mature">Mature</option>
-              <option value="Senior">Senior</option>
-            </select>
-          </div>
+              <div class="filter-group">
+                <label for="ageFilter">Age</label>
+                <select id="ageFilter">
+                  <option value="">All Ages</option>
+                  <option value="Puppy">Puppy</option>
+                  <option value="Young">Young</option>
+                  <option value="Adult">Adult</option>
+                  <option value="Mature">Mature</option>
+                  <option value="Senior">Senior</option>
+                </select>
+              </div>
 
-          <div class="filter-group price-filter-container">
-            <label for="minPrice">Price</label>
-            <div>
-              <input type="number" id="minPrice" placeholder="Min" min="0" />
-              <span>-</span>
-              <input type="number" id="maxPrice" placeholder="Max" />
+              <div class="filter-group price-filter-container">
+                <label for="minPrice">Price</label>
+                <div>
+                  <input type="number" id="minPrice" placeholder="Min" min="0" />
+                  <span>-</span>
+                  <input type="number" id="maxPrice" placeholder="Max" />
+                </div>
+                <span id="minPriceValue">Min: Rs.0</span>
+                <span id="maxPriceValue">Max: Rs.0</span>
+              </div>
             </div>
-            <span id="minPriceValue">Min: Rs.0</span>
-            <span id="maxPriceValue">Max: Rs.0</span>
-          </div>
-        </div>
-      </aside>
+          </aside>        
 
-      <section class="dog-listing">
-        <div id="dogGrid" class="dog-grid">
-          <!-- Dog cards will be added here by JavaScript -->
+          <section class="dog-listing">
+            <div id="dogGrid" class="dog-grid">
+              <!-- Dog cards will be added here by JavaScript -->
+            </div>
+            <!-- Pagination will be added here dynamically by JavaScript -->
+          </section>
         </div>
-        <!-- Pagination will be added here dynamically by JavaScript -->
-      </section>
-    </main>
-
-    <footer>
-      <div class="container">
-        <p>© 2025 Pet Haven. All Rights Reserved.</p>
       </div>
-    </footer>
+    </div>
 
     <!-- Modal Structure -->
     <div id="dogDetailsModal" class="modal">

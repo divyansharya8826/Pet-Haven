@@ -1,3 +1,21 @@
+function toggleSidebar() {
+	const sidebar = document.getElementById('sidebar');
+	const navbar = document.getElementById('navbar');
+	const mainContent = document.getElementById('mainContent');
+
+	if (sidebar.classList.contains('show')) {
+		sidebar.classList.remove('show');
+		navbar.style.left = '0';
+		navbar.style.width = '100%';
+		mainContent.style.marginLeft = '0';
+	} else {
+		sidebar.classList.add('show');
+		navbar.style.left = '250px';
+		navbar.style.width = 'calc(100% - 250px)';
+		mainContent.style.marginLeft = '250px';
+	}
+}
+
 /****************************************** fetching dogs details from the api for listing and checking the filters for apply changes in the listing */
 document.addEventListener("DOMContentLoaded", function () {
   fetchDogs();
