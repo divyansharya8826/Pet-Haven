@@ -421,7 +421,7 @@ nav a.cart-style {
   left: 47%;
   top: 27%;
   width: 360px;
-  height: 455px;
+  height: 465px;
   justify-content: center;
   align-items: center;
 }
@@ -432,7 +432,7 @@ nav a.cart-style {
   padding: 5px;
   border: 1px solid #888;
   width: 360px; 
-  height: 455px;
+  height: 465px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -442,7 +442,7 @@ nav a.cart-style {
 
 .dog-info{
   width: 340px; 
-  height: 440px;
+  height: 450px;
   display: flex;
   flex-direction: column;
   align-items: center;
