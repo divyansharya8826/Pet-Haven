@@ -109,6 +109,8 @@ function displayDogDetails(dog) {
           <p><strong>Breed:</strong> ${dog.breed}</p>
           <p><strong>Age:</strong> ${dog.age}</p>
           <p><strong>Price:</strong> Rs.${dog.price}</p>
+          <p><strong>Vaccinated:</strong> ${dog.vaccinated}</p>
+          <p><strong>Description:</strong> ${dog.description}</p>
       </div>
   `;
   let modal = document.getElementById("dogDetailsModal");

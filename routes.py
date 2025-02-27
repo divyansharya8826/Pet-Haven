@@ -30,7 +30,9 @@ def get_dogs():
             "breed": dog.breed,
             "age": dog.age,
             "price": dog.price,
-            "image": dog.image
+            "image": dog.image,
+            "vaccinated": dog.vaccinated,
+            "description": dog.description
         }
         for dog in dogs
     ]
