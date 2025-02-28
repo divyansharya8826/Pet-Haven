@@ -144,3 +144,51 @@ input[type="text"], input[type="email"] {
 .confirm-order:hover {
     background-color: #347336;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .order-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .left-section, .right-section {
+        width: 100%;
+    }
+    .delivery-info, .payment-method, .order-summary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        margin-left: 0;
+        padding-left: 25px;
+    }
+    .order-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .left-section, .right-section {
+        width: 100%;
+    }
+    .delivery-info, .payment-method, .order-summary {
+        width: 100%;
+        padding: 1rem;
+    }
+    .order-item img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .confirm-order {
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+    input[type="text"], input[type="email"] {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+}
