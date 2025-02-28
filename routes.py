@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request, session
+from flask import Flask, jsonify, render_template, request, session, redirect
 import os
 from models import app, db, Dogs
 import uuid
@@ -9,18 +9,18 @@ def login():
     user_id = request.args.get("user_id")  # Get user_id from URL
 
     if not user_id:
-        return jsonify({"error": "User ID is required!"}), 400
+        return "Welcome to Pet Haven - Please login to continue!"
 
     session["user_id"] = user_id  # Store user_id in session
 
-    return jsonify({"message": "Login successful!", "user_id": user_id})
+    return redirect("/")
 
 #************************************ route for home page **************************************************
 @app.route("/")
 def home():
     if "user_id" in session:
         return render_template("petshop.html")
-    return "Welcome to Pet Heaven for Access to the site please login."
+    return redirect("/login")
 
 #************************************* secret key for the session *******************************************
 app.secret_key = str(uuid.uuid4())
@@ -118,13 +118,18 @@ def remove_from_cart():
 
     return jsonify({"message": "Dog removed from cart!", "cart_count": len(cart)})
 
-#************************************* route for order summary ***************************
+#************************************* route for order summary ***********************************************
 
 @app.route("/order")
 def order_summary():
     cart = session.get("cart", [])  # Retrieve order summary from session
     return render_template("order_summary.html", cart=cart)
-    
+
+#************************************* rout for log out ******************************************************
+@app.route("/logout")
+def logout():
+    session.pop("user_id", None)  # Remove user_id from session
+    return redirect("/login")    
 
 if __name__ == "__main__":
     app.run(debug=True)

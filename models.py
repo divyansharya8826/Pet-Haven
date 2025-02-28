@@ -91,7 +91,6 @@ class ServiceProvider(db.Model):
 
     # Many-to-Many Relationship with Users
     users = db.relationship("User", secondary=user_service_provider, back_populates="service_providers")
-    bookings = db.relationship("Booking", backref="service_provider", lazy=True)
 
     def __repr__(self):
         return f"<ServiceProvider {self.name}>"
