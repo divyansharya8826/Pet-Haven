@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pet Haven - Dog Listings</title>
+    <link rel="stylesheet" href="static/css/base.css" />
+    <link rel="stylesheet" href="static/css/order_summary.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+
+  <body>
+    <!-- Burger Icon -->
+    <div class="burger" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo">
+          <i class="fas fa-paw"></i>
+          <h2>Pet Haven</h2>
+      </div>
+      <ul class="nav-menu">
+          <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+          <li class="nav-item active"><i class="fas fa-images"></i> Dog Gallery</li>
+          <li class="nav-item"><i class="fas fa-concierge-bell"></i> Services</li>
+          <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <!-- Navbar -->
+      <div class="navbar" id="navbar">
+          <h2>Dog Gallery</h2>
+          <div class="nav-right">
+              <div class="notification">
+                  <i class="fas fa-bell fa-2x"></i>
+                  <span class="badge">2</span>
+              </div>
+              <div class="profile">
+                  <div class="profile-pic">JD</div>
+                  <span>John Doe</span>
+              </div>
+          </div>
+      </div>
+
+    <div class="container">
+      <div class="order-container">
+          <!-- Left Section (Delivery Information & Payment) -->
+          <div class="left-section">
+              <div class="delivery-info">
+                  <h2>Delivery Information</h2>
+                  <form>
+                      <label for="name">Name</label>
+                      <input type="text" id="name" placeholder="Enter your name">
+                      
+                      <label for="phone">Mobile Number</label>
+                      <input type="text" id="phone" placeholder="+91 ">
+
+                      <label for="email">Email</label>
+                      <input type="email" id="email" placeholder="Enter your email">
+
+                      <label for="address">Address</label>
+                      <input type="text" id="address" placeholder="Enter your address">
+
+                      <label for="city">City</label>
+                      <input type="text" id="city" placeholder="Enter your city">
+
+                      <label for="state">State</label>
+                      <input type="text" id="state" placeholder="Enter your state">
+
+                      <label for="zip">ZIP Code</label>
+                      <input type="text" id="zip" placeholder="Enter ZIP code">
+                  </form>
+              </div>
+
+              <div class="payment-method">
+                  <h2>Payment Method</h2>
+                  <label><input type="radio" name="payment" checked> Online Payment</label>
+                  <label><input type="radio" name="payment"> Cash on Delivery</label>
+                  <label><input type="radio" name="payment"> POS on Delivery</label>
+              </div>
+          </div>
+
+          <!-- Right Section (Order Summary) -->
+          <div class="right-section">
+            {% if cart %}
+              <div class="order-summary">
+                  <h2>Order Summary</h2>
+                  {% for item in cart %}
+                    <div class="order-item" data-id="{{ item.id }}">
+                      <img src="{{ item.image }}" alt="{{ item.name }}">
+                      <div class="item-details">
+                        <h3>{{ item.name }}</h3>
+                        <p>Breed: {{ item.breed }}</p>
+                        <p>Age: {{ item.age }}</p>
+                        <p id="price">Rs.{{ item.price }}</p>
+                      </div>
+                    </div>
+                  {% endfor %}
+                  <div class="order-total">
+                      <p><strong>Subtotal </strong> <span id="subtotal">Rs.{{ cart | sum(attribute='price') }}</span></p>
+                      <p><strong>Shipping </strong> <span>Free</span></p>
+                      <p><strong>Total </strong> <span id="total">Rs.{{ cart | sum(attribute='price') }}</span></p>
+                  </div>                  
+              </div>
+            {% endif %}
+            <button class="confirm-order">Confirm Order</button>
+          </div>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>
