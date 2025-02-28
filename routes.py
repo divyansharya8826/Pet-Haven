@@ -104,6 +104,13 @@ def remove_from_cart():
 
     return jsonify({"message": "Dog removed from cart!", "cart_count": len(cart)})
 
+#************************************* route for order summary ***************************
+
+@app.route("/order")
+def order_summary():
+    cart = session.get("cart", [])  # Retrieve order summary from session
+    return render_template("order_summary.html", cart=cart)
+    
 
 if __name__ == "__main__":
     app.run(debug=True)

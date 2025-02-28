@@ -52,7 +52,7 @@
 
             <div class="cart-summary">
                 <h3>Total: Rs. <span id="total-price">{{ cart | sum(attribute='price') }}</span></h3>
-                <button id="checkout">Proceed to Checkout</button>
+                <a id="checkout" href="/order">Proceed to Checkout</a>
             </div>
         {% else %}
             <div class="empty-cart">
