@@ -124,12 +124,21 @@ def remove_from_cart():
 def order_summary():
     cart = session.get("cart", [])  # Retrieve order summary from session
     return render_template("order_summary.html", cart=cart)
+<<<<<<< HEAD
 
 #************************************* rout for log out ******************************************************
 @app.route("/logout")
 def logout():
     session.pop("user_id", None)  # Remove user_id from session
     return redirect("/login")    
+=======
+    
+#************************************* route for order summary ***************************
+
+@app.route('/order-confirm')
+def order_confirm():
+    return render_template('order_confirm.html')
+>>>>>>> 89d64ff4bad1caecb6ead2ed599fb58e33a52d77
 
 if __name__ == "__main__":
     app.run(debug=True)
