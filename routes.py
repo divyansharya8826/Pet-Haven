@@ -3,10 +3,24 @@ import os
 from models import app, db, Dogs
 import uuid
 
+#************************************ route for temprary login ***********************************************
+@app.route("/login")
+def login():
+    user_id = request.args.get("user_id")  # Get user_id from URL
+
+    if not user_id:
+        return jsonify({"error": "User ID is required!"}), 400
+
+    session["user_id"] = user_id  # Store user_id in session
+
+    return jsonify({"message": "Login successful!", "user_id": user_id})
+
 #************************************ route for home page **************************************************
 @app.route("/")
 def home():
-    return render_template("petshop.html")
+    if "user_id" in session:
+        return render_template("petshop.html")
+    return "Welcome to Pet Heaven for Access to the site please login."
 
 #************************************* secret key for the session *******************************************
 app.secret_key = str(uuid.uuid4())
