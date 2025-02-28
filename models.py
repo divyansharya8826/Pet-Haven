@@ -110,7 +110,6 @@ class Booking(db.Model):
 
     booking_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey("user.user_id"), nullable=False)
-    service_id = db.Column(db.String(36), db.ForeignKey("service_provider.service_id"), nullable=False)
     booking_date = db.Column(db.DateTime, default=db.func.current_timestamp())
     duration = db.Column(db.Time, nullable=False)
     total_cost = db.Column(db.Integer, nullable=False)
@@ -127,8 +126,17 @@ class BookingDetail(db.Model):
 
     booking_detail_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     booking_id = db.Column(db.String(36), db.ForeignKey("booking.booking_id"), nullable=False)
+    service_id = db.Column(db.String(36), nullable=False)
+    user_id = db.Column(db.String(36), nullable=False)
     service_name = db.Column(db.String(100), nullable=False)
     service_price = db.Column(db.Integer, nullable=False)
+
+    _table_args_ = (
+        db.ForeignKeyConstraint(
+            ['service_id', 'user_id'],
+            ['service_provider.service_id', 'service_provider.user_id']
+        ),
+    )
 
     def __repr__(self):
         return f"<BookingDetail {self.booking_detail_id} - Booking {self.booking_id}>"
