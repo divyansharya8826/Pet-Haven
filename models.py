@@ -96,6 +96,14 @@ class ServiceProvider(db.Model):
     def __repr__(self):
         return f"<ServiceProvider {self.name}>"
 
+#******************************************* Service table creation *********************************************
+class Service(db.Model):
+    __tablename__ = "service"
+
+    service_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    service_name = db.Column(db.String(60), nullable=False)
+    service_description = db.Column(db.String(255), nullable=False)
+
 # ****************************************** Booking Table ****************************************************
 class Booking(db.Model):
     __tablename__ = "booking"
