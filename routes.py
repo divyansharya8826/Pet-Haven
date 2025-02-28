@@ -111,6 +111,11 @@ def order_summary():
     cart = session.get("cart", [])  # Retrieve order summary from session
     return render_template("order_summary.html", cart=cart)
     
+#************************************* route for order summary ***************************
+
+@app.route('/order-confirm')
+def order_confirm():
+    return render_template('order_confirm.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

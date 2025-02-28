@@ -128,6 +128,7 @@ input[type="text"], input[type="email"] {
 }
 
 .confirm-order {
+    text-decoration: none;
     background: #4CAF50;
     color: white;
     padding: 0.7rem;

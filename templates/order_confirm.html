@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pet Haven - Order Confirmation</title>
+    <link rel="stylesheet" href="static/css/base.css" />
+    <link rel="stylesheet" href="static/css/order_summary.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+
+  <body>
+    <!-- Burger Icon -->
+    <div class="burger" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo">
+          <i class="fas fa-paw"></i>
+          <h2>Pet Haven</h2>
+      </div>
+      <ul class="nav-menu">
+          <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+          <li class="nav-item active"><i class="fas fa-images"></i> Dog Gallery</li>
+          <li class="nav-item"><i class="fas fa-concierge-bell"></i> Services</li>
+          <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <!-- Navbar -->
+      <div class="navbar" id="navbar">
+          <h2>Dog Gallery</h2>
+          <div class="nav-right">
+              <div class="notification">
+                  <i class="fas fa-bell fa-2x"></i>
+                  <span class="badge">2</span>
+              </div>
+              <div class="profile">
+                  <div class="profile-pic">JD</div>
+                  <span>John Doe</span>
+              </div>
+          </div>
+      </div>
+      <script src="static/js/script.js"></script>
+  </body>
+</html>
