@@ -129,9 +129,10 @@ def order_summary():
 
 @app.route('/order-confirm')
 def order_confirm():
-    return render_template('order_confirm.html')
+    cart = session.get("cart", [])
+    return render_template("order_confirm.html", cart=cart)
 
-#************************************* roue for log out ******************************************************
+#************************************* route for log out ******************************************************
 @app.route("/logout")
 def logout():
     session.pop("user_id", None)  # Remove user_id from session

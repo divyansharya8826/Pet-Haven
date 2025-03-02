@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pet Haven - Order Confirmation</title>
     <link rel="stylesheet" href="static/css/base.css" />
-    <link rel="stylesheet" href="static/css/order_summary.css" />
+    <link rel="stylesheet" href="static/css/order_confirm.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -51,6 +51,86 @@
               </div>
           </div>
       </div>
-      <script src="static/js/script.js"></script>
+    </div>
+
+    <main class="order-container">
+      <div class="order-summary">
+          <div class="order-header">
+              <i class="fas fa-check-circle"></i>
+              <h2>Thanks for your order!</h2>
+              <p>The order confirmation has been sent to your mail</p>
+          </div>
+
+          <div class="order-details">
+              <div class="order-info">
+                  <h3>Transaction Date</h3>
+                  <p><span id="current-date"></span></p>
+              </div>
+              <div class="order-info">
+                  <h3>Payment Method</h3>
+                  <p id="selected-payment"></p>
+              </div>
+              <div class="order-info">
+                  <h3>Shipping Method</h3>
+                  <p>Express delivery (1-3 business days)</p>
+              </div>
+          </div>
+
+          {% if cart %}
+            <div class="order-items">
+              <h3>Your Order</h3>
+              {% for item in cart %}
+                <div class="item" data-id="{{ item.id }}">
+                  <div class="item-info">
+                    <p class="item-name">{{ item.name }}</p>
+                    <p class="item-breed">Breed: {{ item.breed }}</p>
+                    <p class="item-quantity">x1</p>
+                  </div>
+                  <p class="item-price">Rs.{{ item.price }}</p>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="order-pricing">
+              <div class="price-row">
+                <span>Subtotal</span>
+                <span>Rs.{{ cart | sum(attribute='price') }}</span>
+              </div>
+              <div class="price-row">
+                <span>Shipment cost</span>
+                <span>Free</span>
+              </div>
+              <div class="price-row grand-total">
+                <span>Grand total</span>
+                <span>Rs.{{ cart | sum(attribute='price') }}</span>
+              </div>
+            </div>
+          {% endif %}
+
+          <a class="continue-shopping" href="{{ url_for('home') }}">Continue Shopping</a>
+      </div>
+  </main>
+
+    <script>
+      // Function to get today's date in a readable format
+      function formatDate() {
+          const today = new Date();
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          return today.toLocaleDateString('en-US', options);
+      }
+      // Set today's date in the span
+      document.getElementById('current-date').textContent = formatDate();
+    
+      // Get stored payment method from localStorage
+      document.addEventListener("DOMContentLoaded", function () {
+        const paymentMethod = localStorage.getItem("paymentMethod");
+        if (paymentMethod && paymentMethod !== "Not Selected") {
+            document.getElementById("selected-payment").textContent = paymentMethod;
+        } else {
+            document.getElementById("selected-payment").textContent = "Not Selected";
+        }
+      });
+    </script>
+
+    <script src="static/js/script.js"></script>
   </body>
 </html>
