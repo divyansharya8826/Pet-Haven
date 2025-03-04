@@ -252,5 +252,10 @@ def logout():
     session.pop("user_id", None)  # Remove user_id from session
     return redirect("/login")
 
+@app.route('/dashboard')
+def index():
+    return render_template('dashboard.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)

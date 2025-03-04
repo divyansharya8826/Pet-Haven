@@ -1,0 +1,236 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #3d3d3d, #777777);
+    color: #fff;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeIn 1s ease-in;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    color: #f5a623;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: #ddd;
+    font-style: italic;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    border-radius: 25px;
+    backdrop-filter: blur(5px);
+}
+
+.tab {
+    padding: 0.5rem 1.5rem;
+    background: none;
+    border: none;
+    color: #807e7e;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+.tab.active {
+    background: #f5a623;
+    color: #1a1a1a;
+    transform: scale(1.05);
+}
+
+.tab:hover:not(.active) {
+    background: rgba(173, 173, 173, 0.2);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    padding: 1rem;
+}
+
+.service-card {
+    background: rgba(252, 252, 252, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden;
+    position: relative;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #f5a623, #2ecc71);
+    border-radius: 15px 15px 0 0;
+}
+
+.service-card .category {
+    background: #aca9a9;
+    color: #fff;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.service-card img {
+    width: 100px;
+    height: 100px;
+    margin: 1rem auto;
+    background: #f0f0f0;
+    border-radius: 50%;
+    border: 3px solid #f5a623;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+}
+
+.service-card:hover img {
+    transform: rotate(360deg);
+}
+
+.service-card h2 {
+    font-size: 1.8rem;
+    color: #f5a623;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.service-card p {
+    font-size: 1rem;
+    color: #ddd;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.service-card ul {
+    list-style-type: none;
+    text-align: left;
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+}
+
+.service-card li {
+    margin: 0.7rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.service-card li::before {
+    content: "✔";
+    color: #2ecc71;
+    font-size: 1rem;
+    margin-right: 0.5rem;
+}
+
+.service-card .duration {
+    color: #aaa;
+    font-style: italic;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.service-card .price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2ecc71;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.book-btn {
+    background: linear-gradient(45deg, #f5a623, #2ecc71);
+    color: #fff;
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 2px solid #fff;
+    transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+}
+
+.book-btn:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(45deg, #e68a00, #27ae60);
+    box-shadow: 0 5px 15px rgba(245, 166, 35, 0.5);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .tab {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .header p {
+        font-size: 1rem;
+    }
+}
