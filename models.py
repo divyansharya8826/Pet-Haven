@@ -1,3 +1,4 @@
+from email.policy import default
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
@@ -17,7 +18,7 @@ dog_ownership = db.Table(
     db.Column("dog_id", db.String(36), db.ForeignKey("dogs.dog_id"), primary_key=True)
 )
 
-#*************************************** User and ServiceProvider Many-to-Many Relationship ****************
+#*************************************** User and ServiceProvider (Many-to-Many) Relationship ****************
 user_service_provider = db.Table(
     "user_service_provider",
     db.Column("user_id", db.String(36), db.ForeignKey("user.user_id"), primary_key=True),
@@ -114,7 +115,8 @@ class Booking(db.Model):
     total_cost = db.Column(db.Integer, nullable=False)
 
     booking_details = db.relationship("BookingDetail", backref="booking", lazy=True)
-    order_details = db.relationship("OrderDetail", backref="booking", lazy=True)
+    order_details = db.relationship("OrderDetail", back_populates="booking", lazy=True)
+    cart_items = db.relationship("CartItem", back_populates="booking", lazy=True)
 
     def __repr__(self):
         return f"<Booking {self.booking_id} - User {self.user_id}>"
@@ -155,7 +157,7 @@ class Order(db.Model):
     payment_status = db.Column(db.Enum(PaymentStatus), default=PaymentStatus.PENDING, nullable=False)
     order_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    order_details = db.relationship("OrderDetail", backref="order", lazy=True)
+    order_details = db.relationship("OrderDetail", back_populates="order", lazy=True)
 
     def __repr__(self):
         return f"<Order {self.order_id} - {self.total_amount}>"
@@ -168,7 +170,11 @@ class OrderDetail(db.Model):
     order_id = db.Column(db.String(36), db.ForeignKey("order.order_id"), nullable=False)
     dog_id = db.Column(db.String(36), db.ForeignKey("dogs.dog_id"), nullable=True)
     booking_id = db.Column(db.String(36), db.ForeignKey("booking.booking_id"), nullable=True)
-    quantity = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+
+    booking = db.relationship("Booking", back_populates="order_details", lazy=True)
+    dog = db.relationship("Dogs", back_populates="order_details", lazy=True)
+    order = db.relationship("Order", back_populates="order_details", lazy=True)
 
     def __repr__(self):
         return f"<OrderDetail {self.order_detail_id} - {self.quantity}>"
@@ -195,8 +201,9 @@ class CartItem(db.Model):
     cart_id = db.Column(db.String(36), db.ForeignKey("cart.cart_id"), nullable=False)
     dog_id = db.Column(db.String(36), db.ForeignKey("dogs.dog_id"), nullable=True)
     booking_id = db.Column(db.String(36), db.ForeignKey("booking.booking_id"), nullable=True)
-    quantity = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
 
+    booking = db.relationship("Booking", back_populates="cart_items", lazy=True)
     dog = db.relationship("Dogs", back_populates="cart_items", lazy=True)
     cart = db.relationship("Cart", back_populates="cart_items", lazy=True)
     def __repr__(self):
