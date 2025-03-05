@@ -254,7 +254,7 @@ def logout():
 
 @app.route('/services') # change name of the route to services from dashboard
 def services():
-    return render_template('dashboard.html')
+    return render_template('ex-service.html')
 
 
 if __name__ == "__main__":
