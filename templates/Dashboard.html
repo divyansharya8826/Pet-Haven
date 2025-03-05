@@ -3,27 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Dog Services</title>
-    <link rel="stylesheet" href="static/css/Dashboard.css">
+    <title>Dog Services</title>    
     <link rel="stylesheet" href="static/css/base.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/Dashboard.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 </head>
 <body>
-    <div class="header">
-        <h1>Our Dog Services</h1>
-        <p>Comprehensive care services designed to keep your furry friend happy, healthy, and thriving</p>
+    <!-- Burger Icon -->
+    <div class="burger" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
     </div>
+  
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>Pet Haven</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item"><a href="/"> <i class="fas fa-images"></i> Dog Gallery </a></li>
+            <li class="nav-item active"><i class="fas fa-concierge-bell"></i> Services</li>
+            <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+        </ul>
+      </div>
+  
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Navbar -->
+        <div class="navbar" id="navbar">
+            <h2>Dog Gallery</h2>
+            <div class="nav-right">
+                <div class="notification">
+                    <i class="fas fa-bell fa-2x"></i>
+                    <span class="badge">2</span>
+                </div>
+                <div class="profile">
+                    <div class="profile-pic">JD</div>
+                    <span>John Doe</span>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">
+                <h2>Our Dog Services</h2>
+                <p>Comprehensive care services designed to keep your furry friend happy, healthy, and thriving</p>
+            </div>
 
-    <div class="tabs">
-        <button class="tab active" data-category="all">All</button>
-        <button class="tab" data-category="grooming">Grooming</button>
-        <button class="tab" data-category="therapy">Therapy</button>
-        <button class="tab" data-category="health">Health</button>
-        <button class="tab" data-category="training">Training</button>
-        <button class="tab" data-category="spa">Spa</button>
+            <div class="tabs">
+                <button class="tab active" data-category="all">All</button>
+                <button class="tab" data-category="grooming">Grooming</button>
+                <button class="tab" data-category="therapy">Therapy</button>
+                <button class="tab" data-category="health">Health</button>
+                <button class="tab" data-category="training">Training</button>
+                <button class="tab" data-category="spa">Spa</button>
+            </div>
+
+            <div class="services-grid" id="servicesGrid"></div>
+        </div>
     </div>
-
-    <div class="services-grid" id="servicesGrid"></div>
 
     <script src="static/js/dashboard.js"></script>
 </body>

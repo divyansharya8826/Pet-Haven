@@ -11,8 +11,8 @@ const dogServices = [
             "Improves overall hygiene"
         ],
         duration: "60-90 minutes",
-        price: "$95-$120",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.8000",
+        icon: "https://png.pngtree.com/png-clipart/20230811/original/pngtree-dog-grooming-rgb-color-icon-beauty-help-grooming-vector-picture-image_10410932.png" // Replace with actual icon URL
     },
     {
         category: "grooming",
@@ -25,8 +25,8 @@ const dogServices = [
             "Includes ear cleaning"
         ],
         duration: "30-45 minutes",
-        price: "$35-$60",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.5000",
+        icon: "https://cdn-icons-png.flaticon.com/512/7078/7078977.png" // Replace with actual icon URL
     },
     {
         category: "grooming",
@@ -39,8 +39,8 @@ const dogServices = [
             "Includes paw massage"
         ],
         duration: "15-20 minutes",
-        price: "$20-$30",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.4000",
+        icon: "https://cdn-icons-png.flaticon.com/512/10753/10753855.png" // Replace with actual icon URL
     },
     {
         category: "therapy",
@@ -53,8 +53,8 @@ const dogServices = [
             "Supports emotional well-being"
         ],
         duration: "45-60 minutes",
-        price: "$50-$80",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.5000",
+        icon: "https://cdn-icons-png.flaticon.com/512/6381/6381442.png" // Replace with actual icon URL
     },
     {
         category: "health",
@@ -67,8 +67,8 @@ const dogServices = [
             "Detailed health report"
         ],
         duration: "30-45 minutes",
-        price: "$40-$70",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.3000",
+        icon: "https://cdn-icons-png.flaticon.com/512/5871/5871961.png" // Replace with actual icon URL
     },
     {
         category: "training",
@@ -81,8 +81,8 @@ const dogServices = [
             "Boosts confidence and bonding"
         ],
         duration: "45-60 minutes",
-        price: "$45-$75",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.7000",
+        icon: "https://cdn1.iconfinder.com/data/icons/dog-training/66/31-1024.png" // Replace with actual icon URL
     },
     {
         category: "spa",
@@ -95,10 +95,29 @@ const dogServices = [
             "Premium grooming products"
         ],
         duration: "60-90 minutes",
-        price: "$80-$120",
-        icon: "https://via.placeholder.com/100" // Replace with actual icon URL
+        price: "Rs.4000",
+        icon: "https://static.vecteezy.com/system/resources/previews/021/467/974/non_2x/dogs-spa-icon-cartoon-dog-bath-vector.jpg" // Replace with actual icon URL
     }
 ];
+
+// Function for sidebar
+function toggleSidebar() {
+	const sidebar = document.getElementById('sidebar');
+	const navbar = document.getElementById('navbar');
+	const mainContent = document.getElementById('mainContent');
+
+	if (sidebar.classList.contains('show')) {
+		sidebar.classList.remove('show');
+		navbar.style.left = '0';
+		navbar.style.width = '100%';
+		mainContent.style.marginLeft = '0';
+	} else {
+		sidebar.classList.add('show');
+		navbar.style.left = '250px';
+		navbar.style.width = 'calc(100% - 250px)';
+		mainContent.style.marginLeft = '250px';
+	}
+}
 
 // Function to generate service cards dynamically
 function renderServices(category = 'all') {

@@ -84,6 +84,11 @@ body {
   color: #4CAF50;
 }
 
+.nav-item a{
+  text-decoration: none;
+  color: black;
+}
+
 /* Navbar */
 .navbar {
   position: fixed;
