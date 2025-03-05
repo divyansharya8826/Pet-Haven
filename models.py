@@ -173,7 +173,7 @@ class OrderDetail(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
     booking = db.relationship("Booking", back_populates="order_details", lazy=True)
-    dog = db.relationship("Dogs", back_populates="order_details", lazy=True)
+    dog = db.relationship("Dogs", back_populates="order_details", lazy=True, overlaps="dogs")
     order = db.relationship("Order", back_populates="order_details", lazy=True)
 
     def __repr__(self):
