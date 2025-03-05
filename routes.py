@@ -252,8 +252,8 @@ def logout():
     session.pop("user_id", None)  # Remove user_id from session
     return redirect("/login")
 
-@app.route('/services')
-def index():
+@app.route('/services') # change name of the route to services from dashboard
+def services():
     return render_template('dashboard.html')
 
 
