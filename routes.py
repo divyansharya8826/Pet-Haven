@@ -166,7 +166,7 @@ def remove_from_cart():
 @app.route("/order")
 def order_summary():
     if "user_id" not in session:
-        return redirect(url_for("login"))  # ✅ Corrected login redirect
+        return redirect(url_for("login"))  # Corrected login redirect
 
     user_id = session["user_id"]
     order = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).first()
@@ -188,7 +188,7 @@ def order_summary():
 
     return render_template("order_summary.html", order=order, cart=order_items)
     
-#************************************* route for order summary ***************************
+#************************************* route for order summary **********************************************
 
 @app.route('/order-confirm')
 def order_confirm():
