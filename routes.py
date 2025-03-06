@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for, flash
 import os
-from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, PaymentStatus
+from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, ServiceProvider, ServiceProviderStatus
 import uuid
 
 #************************************* secret key for the session *******************************************
@@ -249,9 +249,33 @@ def logout():
     session.pop("user_id", None)  # Remove user_id from session
     return redirect("/login")
 
+#*************************************** routes for service dashboard *******************************
 @app.route('/services') # change name of the route to services from dashboard
 def services():
-    return render_template('ex-service.html')
+    return render_template('Dashboard.html')
+
+
+#*************************************** routes for fectching all services *******************************
+@app.route('/api/services', methods=['GET']) # change name of the route to services from dashboard
+def get_services():
+    services = Service.query.all()
+    services_data = [
+        {
+            "id": service.service_id,
+            "name": service.service_name,
+            "category": service.service_name.lower(),
+            "description": service.service_description
+        }
+        for service in services
+    ]
+    return jsonify(services_data)
+
+
+#*************************************** routes for service providers list *******************************
+@app.route('/service-providers')
+def service_providers():
+    providers = ServiceProvider.query.filter_by(status=ServiceProviderStatus.ACCEPTED).all()
+    return render_template('service_provider.html', providers=providers)
 
 
 if __name__ == "__main__":
