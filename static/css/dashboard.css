@@ -22,8 +22,8 @@ body {
 }
 
 .container {
-    width: 95%;
-    max-width: 1500px;
+    width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 1rem;
 }
@@ -48,6 +48,7 @@ body {
 
 .tabs {
     display: flex;
+    width: 90%;
     gap: 1rem;
     margin-bottom: 2rem;
     background: rgba(0, 0, 0, 0.1);
