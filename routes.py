@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for, flash
 import os
-from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail
+from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, PaymentStatus
 import uuid
 
 #************************************* secret key for the session *******************************************
@@ -193,7 +193,7 @@ def order_summary():
 @app.route('/order-confirm')
 def order_confirm():
     if "user_id" not in session:
-        return redirect(url_for("login"))
+        return redirect(url_for("login"))  # Redirect to login if user not logged in
 
     user_id = session["user_id"]
     cart = Cart.query.filter_by(user_id=user_id).first()
@@ -203,48 +203,45 @@ def order_confirm():
         return redirect(url_for("cart_page"))
 
     # Calculate total amount
-    total_amount = sum(
-        item.dog.price if item.dog else item.booking.total_cost
-        for item in cart.cart_items
-    )
+    total_amount = sum(item.dog.price for item in cart.cart_items)
 
-    # Create a new order
-    order = Order(user_id=user_id, total_amount=total_amount, shipping_address="User Address")
+    # Create a new order with 'PENDING' payment status initially
+    order = Order(user_id=user_id, total_amount=total_amount, 
+                  shipping_address="User Address", 
+                  payment_status=PaymentStatus.PENDING)
     db.session.add(order)
     db.session.commit()
 
-    # Move cart items to order details
-    order_items = []
+    # Move cart items to order items
     for cart_item in cart.cart_items:
-        order_item = OrderDetail(
-            order_id=order.order_id,
-            dog_id=cart_item.dog_id if cart_item.dog else None,
-            booking_id=cart_item.booking_id if cart_item.booking else None,
-            quantity=cart_item.quantity
-        )
+        order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, quantity=cart_item.quantity)
         db.session.add(order_item)
-        order_items.append(order_item)
-
-    db.session.commit()  # Commit all order items
 
     # Clear the cart after order placement
     CartItem.query.filter_by(cart_id=cart.cart_id).delete()
     db.session.commit()
 
-    # Fetch order details for rendering the confirmation page
-    order_items_data = [
-        {
-            "id": item.dog.dog_id if item.dog else None,
-            "name": item.dog.name if item.dog else "Service Booking",
-            "breed": item.dog.breed if item.dog else "N/A",
-            "age": item.dog.age if item.dog else "N/A",
-            "price": item.dog.price if item.dog else item.booking.total_cost,
-            "image": item.dog.image if item.dog else "static/images/default.jpg"
-        }
-        for item in order.order_details
-    ]
+    # Update payment status to SUCCESS
+    order.payment_status = PaymentStatus.SUCCESS
+    db.session.commit()
 
-    return render_template("order_confirm.html", order=order, cart=order_items_data)
+    # Fetch the latest order details
+    latest_order = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).first()
+
+    # Fetch order items
+    order_items = [
+        {
+            "id": item.dog.dog_id,
+            "name": item.dog.name,
+            "breed": item.dog.breed,
+            "age": item.dog.age,
+            "price": item.dog.price,
+            "image": item.dog.image
+        }
+        for item in latest_order.order_details
+    ]
+    
+    return render_template("order_confirm.html", order=latest_order, cart=order_items)
 
 #************************************* route for log out ******************************************************
 @app.route("/logout")

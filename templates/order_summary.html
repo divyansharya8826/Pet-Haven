@@ -206,6 +206,16 @@
         }
       }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/order-confirm", { method: "POST" })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message); // Show popup message
+            window.location.href = "/order-confirm"; // Redirect to confirmation page
+        })
+        .catch(error => console.error("Error:", error));
+    });
   </script>
 
   <script src="static/js/script.js"></script>
