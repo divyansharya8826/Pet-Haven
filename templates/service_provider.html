@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Service Providers</title>
+        <link rel="stylesheet" href="static/css/base.css">
+        <link rel="stylesheet" href="static/css/service_provider.css">
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+            integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+    </head>
+<body>
+    <body>
+        <!-- Burger Icon -->
+        <div class="burger" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </div>
+    
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+          <div class="logo">
+              <i class="fas fa-paw"></i>
+              <h2>Pet Haven</h2>
+          </div>
+          <ul class="nav-menu">
+              <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+              <li class="nav-item"><a href="/"> <i class="fas fa-images"></i> Dog Gallery </a></li>
+              <li class="nav-item active"><i class="fas fa-concierge-bell"></i> Services</li>
+              <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+          </ul>
+        </div>
+    
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+          <!-- Navbar -->
+          <div class="navbar" id="navbar">
+              <h2>Dog Gallery</h2>
+              <div class="nav-right">
+                  <div class="notification">
+                      <i class="fas fa-bell fa-2x"></i>
+                      <span class="badge">2</span>
+                  </div>
+                  <div class="profile">
+                      <div class="profile-pic">JD</div>
+                      <span>John Doe</span>
+                  </div>
+              </div>
+          </div>
+          <div class="container">
+            <h1>Available Service Providers</h1>
+            <div class="service-providers-grid">
+                {% for provider in providers %}
+                <div class="service-card">
+                    <h3>{{ provider.name }}</h2>
+                    <p>Service: {{ provider.service_name }}</p>
+                    <p>Address: {{ provider.address }}</p>
+                    <p>Hourly Rate: ${{ provider.hourly_rate }}</p>
+                    <p>Experience: {{ provider.experience }}</p>
+                    <p>{{ provider.description }}</p>
+                    <button class="book-btn" onclick="bookService('{{ provider.service_id }}')">Book Now</button>
+                </div>
+                {% endfor %}
+            </div>
+          </div>
+        </div>
+
+    <script src="static/js/dashboard.js"></script>
+</body>
+</html>
