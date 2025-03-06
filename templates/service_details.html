@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Pet Care - Dog Grooming</title>
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/service_details.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Burger Icon -->
+    <div class="burger" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+  
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>Pet Haven</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item"><a href="/"> <i class="fas fa-images"></i> Dog Gallery </a></li>
+            <li class="nav-item active"><i class="fas fa-concierge-bell"></i> Services</li>
+            <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+        </ul>
+      </div>
+  
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Navbar -->
+        <div class="navbar" id="navbar">
+            <h2>Dog Gallery</h2>
+            <div class="nav-right">
+                <div class="notification">
+                    <i class="fas fa-bell fa-2x"></i>
+                    <span class="badge">2</span>
+                </div>
+                <div class="profile">
+                    <div class="profile-pic">JD</div>
+                    <span>John Doe</span>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="premium-service-card">
+                <div class="service-hero">
+                    <img src="https://images.unsplash.com/photo-1583511655826-05700d52f4d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Dog Grooming">
+                    <div class="hero-content">
+                        <h1><i class="fas fa-crown"></i> Premium Dog Grooming</h1>
+                        <p class="provider">by John Smith</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>4.8 / 5 (124 reviews)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-body">
+                    <div class="details-section">
+                        <h2>Service Overview</h2>
+                        <div class="detail-grid" id="serviceDetails"></div>
+                    </div>
+
+                    <div class="booking-section">
+                        <h2>Book Your Appointment</h2>
+                        <form id="bookingForm">
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar-alt"></i> Date</label>
+                                <input type="date" id="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-clock"></i> Time</label>
+                                <select id="time" required>
+                                    <option value="">Select a time</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-hourglass-half"></i> Duration</label>
+                                <select id="duration" required>
+                                    <option value="">Select duration</option>
+                                    <option value="1">1 Hour</option>
+                                    <option value="2">2 Hours</option>
+                                    <option value="3">3 Hours</option>
+                                </select>
+                            </div>
+                            <div class="cost-preview" id="costPreview"></div>
+                            <button type="submit" class="premium-book-btn">Reserve Now</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="reviews-section">
+                    <h2>Client Reviews</h2>
+                    <div class="review-grid" id="reviewList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="static/js/service_details.js"></script>
+</body>
+</html>

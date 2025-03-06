@@ -2,21 +2,30 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
 body {
-    background: #f5f5f5;
-    min-height: 100vh;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
+    flex-direction: column;
+}
+
+.main-content {
+    margin-top: 70px;
+    margin-left: 250px;
+    padding: 20px;
+    width: 100-250px;
+    transition: margin-left 0.3s ease-in-out;
 }
 
 .container {
-    max-width: 1200px;
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 .premium-service-card {
@@ -53,7 +62,7 @@ body {
 }
 
 .hero-content h1 i {
-    color: #ff6f61;
+    color: #347336;
     margin-right: 12px;
 }
 
@@ -70,7 +79,7 @@ body {
 }
 
 .rating i {
-    color: #ff6f61;
+    color: #347336;
     font-size: 20px;
 }
 
@@ -118,7 +127,7 @@ body {
 }
 
 .status-accepted {
-    color: #00cc99;
+    color: #4CAF50;
     font-weight: 600;
 }
 
@@ -141,7 +150,7 @@ body {
 
 .form-group label i {
     margin-right: 10px;
-    color: #ff6f61;
+    color: #4CAF50;
     font-size: 18px;
 }
 
@@ -160,13 +169,13 @@ body {
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #ff6f61;
+    border-color: #4CAF50;
 }
 
 .cost-preview {
     text-align: center;
     font-size: 22px;
-    color: #00cc99;
+    color: #4CAF50;
     font-weight: 600;
     margin: 30px 0;
 }
@@ -174,7 +183,7 @@ body {
 .premium-book-btn {
     width: 100%;
     padding: 16px;
-    background: #ff6f61;
+    background: #4CAF50;
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -185,7 +194,7 @@ body {
 }
 
 .premium-book-btn:hover {
-    background: #e65b50;
+    background: #347336;
 }
 
 .reviews-section {
