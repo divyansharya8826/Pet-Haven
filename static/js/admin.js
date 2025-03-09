@@ -1,3 +1,21 @@
+function toggleSidebar() {
+	const sidebar = document.getElementById('sidebar');
+	const navbar = document.getElementById('navbar');
+	const mainContent = document.getElementById('mainContent');
+
+	if (sidebar.classList.contains('show')) {
+		sidebar.classList.remove('show');
+		navbar.style.left = '0';
+		navbar.style.width = '100%';
+		mainContent.style.marginLeft = '0';
+	} else {
+		sidebar.classList.add('show');
+		navbar.style.left = '250px';
+		navbar.style.width = 'calc(100% - 250px)';
+		mainContent.style.marginLeft = '250px';
+	}
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     fetchDogs();
 });
@@ -19,8 +37,10 @@ function fetchDogs() {
                     <p>Age: ${dog.age} years</p>
                     <p>Price: ₹${dog.price}</p>
                     <p>${dog.description}</p>
-                    <button onclick="editDog('${dog.id}')">Edit</button>
-                    <button onclick="deleteDog('${dog.id}')">Delete</button>
+                    <div class="dog-card-button-container">
+                        <button onclick="editDog('${dog.id}')">Edit</button>
+                        <button onclick="deleteDog('${dog.id}')">Delete</button>
+                    </div>
                 `;
                 dogList.appendChild(dogItem);
             });
