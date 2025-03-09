@@ -271,10 +271,10 @@ def order_summary():
         return redirect(url_for("login"))  # ✅ Corrected login redirect
 
     user_id = session["user_id"]
-    order = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).first()
+    cart = Cart.query.filter_by(user_id=user_id).first()
 
-    if not order:
-        return render_template("order_summary.html", order=None)
+    if not cart or not cart.cart_items:
+        return render_template("order_summary.html", cart=[])
 
     order_items = [
         {
@@ -285,12 +285,12 @@ def order_summary():
             "price": item.dog.price if item.dog else item.booking.total_cost,  # Handle bookings
             "image": item.dog.image if item.dog else "static/images/default.jpg"
         }
-        for item in order.order_details
+        for item in cart.cart_items
     ]
 
-    return render_template("order_summary.html", order=order, cart=order_items)
+    return render_template("order_summary.html", cart=order_items)
     
-#************************************* route for order summary ***************************
+#************************************* route for order confirm ***************************
 
 @app.route('/order-confirm')
 def order_confirm():

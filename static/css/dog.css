@@ -84,6 +84,11 @@ body {
   color: #4CAF50;
 }
 
+.nav-item.active a{
+  background: #e8f5e9;
+  color: #4CAF50;
+}
+
 .nav-item a{
   text-decoration: none;
   color: black;
