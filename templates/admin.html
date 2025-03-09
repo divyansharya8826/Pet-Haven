@@ -14,12 +14,13 @@
 
         <div id="add-dog-form" class="hidden">
             <h3>Add a Dog</h3>
-            <form id="dog-form">
+            <form id="dog-form" enctype="multipart/form-data">
                 <input type="text" id="dog-name" placeholder="Dog Name" required>
                 <input type="text" id="dog-breed" placeholder="Breed" required>
-                <input type="number" id="dog-age" placeholder="Age (years)" required>
+                <input type="text" id="dog-age" placeholder="Age" required>
                 <input type="number" id="dog-price" placeholder="Price (INR)" required>
-                <input type="text" id="dog-image" placeholder="Image URL" required>
+                <label for="dog-image">Upload Image</label>
+                <input type="file" id="dog-image" required>
                 <textarea id="dog-description" placeholder="Short Description"></textarea>
                 <button type="submit">Add Dog</button>
             </form>

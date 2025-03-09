@@ -31,7 +31,7 @@ function fetchDogs() {
 // Delete a dog
 function deleteDog(dogId) {
     if (confirm("Are you sure you want to delete this dog?")) {
-        fetch(`/admin/dogs/${dogId}`, { method: "DELETE" })
+        fetch(`/admin/dogs/delete/${dogId}`, { method: "DELETE" })  // ✅ Corrected URL
             .then(response => response.json())
             .then(() => {
                 alert("Dog deleted successfully!");
@@ -50,19 +50,17 @@ function showAddDogForm() {
 document.getElementById("dog-form").addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const dogData = {
-        name: document.getElementById("dog-name").value.trim(),
-        breed: document.getElementById("dog-breed").value.trim(),
-        age: document.getElementById("dog-age").value.trim(),
-        price: document.getElementById("dog-price").value.trim(),
-        image: document.getElementById("dog-image").value.trim(),
-        description: document.getElementById("dog-description").value.trim()
-    };
+    const formData = new FormData();  // Use FormData
+    formData.append("name", document.getElementById("dog-name").value.trim());
+    formData.append("breed", document.getElementById("dog-breed").value.trim());
+    formData.append("age", document.getElementById("dog-age").value.trim());
+    formData.append("price", document.getElementById("dog-price").value.trim());
+    formData.append("description", document.getElementById("dog-description").value.trim());
+    formData.append("image", document.getElementById("dog-image").files[0]);  // ✅ Image file
 
     fetch("/admin/dogs/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dogData)
+        body: formData  // No need for JSON.stringify
     })
     .then(response => response.json())
     .then(() => {
@@ -79,8 +77,8 @@ function editDog(dogId) {
     const newPrice = prompt("Enter new price:");
 
     if (newName && newPrice) {
-        fetch(`/admin/dogs/update/${dogId}`, {
-            method: "PUT",
+        fetch(`/admin/dogs/edit/${dogId}`, {   // ✅ Corrected URL
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: newName, price: newPrice })
         })

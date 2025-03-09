@@ -31,6 +31,7 @@ def login():
     else:  # If no credentials are provided
         return "Welcome to Pet Haven - Please login to continue!" 
 
+# ********************************* Admin Dashboard Route *********************************
 @app.route("/admin")
 def admin_dashboard():
     print("Admin Dashboard Session:", session)  # Debugging output
@@ -39,21 +40,19 @@ def admin_dashboard():
 
     return render_template("admin.html")
 
-app.config["UPLOAD_FOLDER"] = "static/uploads"
-
-# Allowed file extensions
+# ******************** Configuration for Image Uploads ********************
+app.config["UPLOAD_FOLDER"] = "static/images"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
-# ************************** Route to Add a New Dog **************************
+# ************************************* Route to Add a New Dog **********************************************
 @app.route("/admin/dogs/add", methods=["POST"])
 def add_dog():
     if session.get("role") != "admin":
         return jsonify({"error": "Access Denied! Admins only"}), 403
-    
+
     data = request.form
     name = data.get("name")
     breed = data.get("breed")
@@ -62,19 +61,29 @@ def add_dog():
     vaccinated = data.get("vaccinated", "No")  # Default to 'No'
     description = data.get("description")
 
+    # Fix: Check if all required fields are present
     if not all([name, breed, age, price, description]):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Handle Image Upload
-    image_filename = "default.jpg"  # Default image
+    # Fix: Convert price to integer
+    try:
+        price = int(price)
+    except ValueError:
+        return jsonify({"error": "Invalid price value"}), 400
+
+    # Fix: Ensure images directory exists
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+    # Fix: Handle Image Upload
+    image_filename = "default.jpg"
     image = request.files.get("image")
-    
+
     if image and allowed_file(image.filename):
         image_filename = secure_filename(image.filename)
         image_path = os.path.join(app.config["UPLOAD_FOLDER"], image_filename)
-        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)  # Ensure directory exists
         image.save(image_path)
 
+    # Fix: Store Dog in DB
     new_dog = Dogs(
         name=name,
         breed=breed,
@@ -82,7 +91,7 @@ def add_dog():
         price=price,
         vaccinated=vaccinated,
         description=description,
-        image=f"static/uploads/{image_filename}"
+        image=f"static/images/{image_filename}"
     )
 
     db.session.add(new_dog)
@@ -91,7 +100,7 @@ def add_dog():
     return jsonify({"message": "Dog added successfully!", "dog_id": new_dog.dog_id})
 
 
-# ************************** Route to Delete a Dog **************************
+# ******************** Route to Delete a Dog ********************
 @app.route("/admin/dogs/delete/<string:dog_id>", methods=["DELETE"])
 def delete_dog(dog_id):
     if session.get("role") != "admin":
@@ -101,12 +110,12 @@ def delete_dog(dog_id):
     if not dog:
         return jsonify({"error": "Dog not found"}), 404
 
-    # Remove image file if not default
-    if dog.image != "static/uploads/default.jpg":
+    # Check if image exists before deleting
+    if dog.image != "static/images/default.jpg" and os.path.exists(dog.image):
         try:
             os.remove(dog.image)
         except FileNotFoundError:
-            pass  # Ignore if file doesn't exist
+            print(f"Warning: File {dog.image} not found")  # Debugging info
 
     db.session.delete(dog)
     db.session.commit()
@@ -114,7 +123,7 @@ def delete_dog(dog_id):
     return jsonify({"message": "Dog deleted successfully!"})
 
 
-# ************************** Route to Edit a Dog **************************
+# ******************** Route to Edit a Dog ********************
 @app.route("/admin/dogs/edit/<string:dog_id>", methods=["POST"])
 def edit_dog(dog_id):
     if session.get("role") != "admin":
@@ -124,30 +133,11 @@ def edit_dog(dog_id):
     if not dog:
         return jsonify({"error": "Dog not found"}), 404
 
-    data = request.form
-    dog.name = data.get("name", dog.name)
-    dog.breed = data.get("breed", dog.breed)
-    dog.age = data.get("age", dog.age)
-    dog.price = data.get("price", dog.price)
-    dog.vaccinated = data.get("vaccinated", dog.vaccinated)
-    dog.description = data.get("description", dog.description)
-
-    # Handle Image Upload
-    image = request.files.get("image")
-    if image and allowed_file(image.filename):
-        image_filename = secure_filename(image.filename)
-        image_path = os.path.join(app.config["UPLOAD_FOLDER"], image_filename)
-        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)  # Ensure directory exists
-        image.save(image_path)
-        
-        # Remove old image if it exists and is not default
-        if dog.image != "static/uploads/default.jpg":
-            try:
-                os.remove(dog.image)
-            except FileNotFoundError:
-                pass  # Ignore if file doesn't exist
-        
-        dog.image = f"static/uploads/{image_filename}"
+    # ✅ Handle JSON data properly
+    if request.is_json:
+        data = request.get_json()
+        dog.name = data.get("name", dog.name)
+        dog.price = int(data.get("price", dog.price))  # Convert to int
 
     db.session.commit()
     return jsonify({"message": "Dog updated successfully!"})
