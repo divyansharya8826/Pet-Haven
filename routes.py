@@ -5,6 +5,7 @@ import uuid
 from flask import render_template, jsonify
 from models import ServiceProvider
 from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
 
 #************************************* secret key for the session *******************************************
 app.secret_key = str(uuid.uuid4())
@@ -12,22 +13,150 @@ app.secret_key = str(uuid.uuid4())
 #************************************ route for temprary login ***********************************************
 @app.route("/login")
 def login():
-    user_id = request.args.get("user_id")  # Get user_id from URL
+    user_id = request.args.get("user_id")  
+    admin_id = request.args.get("admin_id")  
 
-    if not user_id:
-        return "Welcome to Pet Haven - Please login to continue!"
+    if admin_id:  # If admin is logging in
+        session["user_id"] = admin_id
+        session["role"] = "admin"
+        print("Admin Logged In:", session)  # Debugging output
+        return redirect(url_for("admin_dashboard"))    
 
-    session["user_id"] = user_id  # Store user_id in session
+    elif user_id:  # If regular user is logging in
+        session["user_id"] = user_id
+        session["role"] = "user"
+        print("User Logged In:", session)  # Debugging output
+        return redirect("/")    
 
-    return redirect("/")
+    else:  # If no credentials are provided
+        return "Welcome to Pet Haven - Please login to continue!" 
 
+@app.route("/admin")
+def admin_dashboard():
+    print("Admin Dashboard Session:", session)  # Debugging output
+    if session.get("role") != "admin":
+        return "Access Denied! Admins only.", 403  
+
+    return render_template("admin.html")
+
+app.config["UPLOAD_FOLDER"] = "static/uploads"
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# ************************** Route to Add a New Dog **************************
+@app.route("/admin/dogs/add", methods=["POST"])
+def add_dog():
+    if session.get("role") != "admin":
+        return jsonify({"error": "Access Denied! Admins only"}), 403
+    
+    data = request.form
+    name = data.get("name")
+    breed = data.get("breed")
+    age = data.get("age")
+    price = data.get("price")
+    vaccinated = data.get("vaccinated", "No")  # Default to 'No'
+    description = data.get("description")
+
+    if not all([name, breed, age, price, description]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Handle Image Upload
+    image_filename = "default.jpg"  # Default image
+    image = request.files.get("image")
+    
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config["UPLOAD_FOLDER"], image_filename)
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)  # Ensure directory exists
+        image.save(image_path)
+
+    new_dog = Dogs(
+        name=name,
+        breed=breed,
+        age=age,
+        price=price,
+        vaccinated=vaccinated,
+        description=description,
+        image=f"static/uploads/{image_filename}"
+    )
+
+    db.session.add(new_dog)
+    db.session.commit()
+
+    return jsonify({"message": "Dog added successfully!", "dog_id": new_dog.dog_id})
+
+
+# ************************** Route to Delete a Dog **************************
+@app.route("/admin/dogs/delete/<string:dog_id>", methods=["DELETE"])
+def delete_dog(dog_id):
+    if session.get("role") != "admin":
+        return jsonify({"error": "Access Denied! Admins only"}), 403
+
+    dog = Dogs.query.get(dog_id)
+    if not dog:
+        return jsonify({"error": "Dog not found"}), 404
+
+    # Remove image file if not default
+    if dog.image != "static/uploads/default.jpg":
+        try:
+            os.remove(dog.image)
+        except FileNotFoundError:
+            pass  # Ignore if file doesn't exist
+
+    db.session.delete(dog)
+    db.session.commit()
+
+    return jsonify({"message": "Dog deleted successfully!"})
+
+
+# ************************** Route to Edit a Dog **************************
+@app.route("/admin/dogs/edit/<string:dog_id>", methods=["POST"])
+def edit_dog(dog_id):
+    if session.get("role") != "admin":
+        return jsonify({"error": "Access Denied! Admins only"}), 403
+
+    dog = Dogs.query.get(dog_id)
+    if not dog:
+        return jsonify({"error": "Dog not found"}), 404
+
+    data = request.form
+    dog.name = data.get("name", dog.name)
+    dog.breed = data.get("breed", dog.breed)
+    dog.age = data.get("age", dog.age)
+    dog.price = data.get("price", dog.price)
+    dog.vaccinated = data.get("vaccinated", dog.vaccinated)
+    dog.description = data.get("description", dog.description)
+
+    # Handle Image Upload
+    image = request.files.get("image")
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config["UPLOAD_FOLDER"], image_filename)
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)  # Ensure directory exists
+        image.save(image_path)
+        
+        # Remove old image if it exists and is not default
+        if dog.image != "static/uploads/default.jpg":
+            try:
+                os.remove(dog.image)
+            except FileNotFoundError:
+                pass  # Ignore if file doesn't exist
+        
+        dog.image = f"static/uploads/{image_filename}"
+
+    db.session.commit()
+    return jsonify({"message": "Dog updated successfully!"})
 #************************************ route for home page **************************************************
 @app.route("/")
 def home():
     if "user_id" in session:
         return render_template("petshop.html")
     return redirect("/login")
-
 
 #************************************** Individual Dog Display route ****************************************
 
@@ -184,10 +313,10 @@ def order_summary():
         return redirect(url_for("login"))
 
     user_id = session["user_id"]
-    order = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).first()
+    cart = Cart.query.filter_by(user_id=user_id).first()
 
-    if not order:
-        return render_template("order_summary.html", order=None)
+    if not cart or not cart.cart_items:
+        return render_template("order_summary.html", cart=[])
 
     order_items = [
         {
@@ -198,11 +327,11 @@ def order_summary():
             "price": item.dog.price if item.dog else item.booking.total_cost,
             "image": item.dog.image if item.dog else "static/images/default.jpg"
         }
-        for item in order.order_details
+        for item in cart.cart_items
     ]
-    return render_template("order_summary.html", order=order, cart=order_items)
+    return render_template("order_summary.html", cart=order_items)
     
-#************************************* route for order summary **********************************************
+#************************************* route for order confirm **********************************************
 
 @app.route('/order-confirm', methods=['POST', 'GET'])
 def order_confirm():
@@ -379,3 +508,5 @@ def book_service():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+#initial code
