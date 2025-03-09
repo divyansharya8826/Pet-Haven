@@ -4,6 +4,7 @@ from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, S
 import uuid
 from flask import render_template, jsonify
 from models import ServiceProvider
+from werkzeug.utils import secure_filename
 
 #************************************* secret key for the session *******************************************
 app.secret_key = str(uuid.uuid4())
@@ -37,6 +38,15 @@ def admin_dashboard():
 
     return render_template("admin.html")
 
+app.config["UPLOAD_FOLDER"] = "static/uploads"
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 # ************************** Route to Add a New Dog **************************
 @app.route("/admin/dogs/add", methods=["POST"])
 def add_dog():
@@ -55,11 +65,14 @@ def add_dog():
         return jsonify({"error": "Missing required fields"}), 400
 
     # Handle Image Upload
+    image_filename = "default.jpg"  # Default image
     image = request.files.get("image")
-    image_filename = None
+    
     if image and allowed_file(image.filename):
         image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        image_path = os.path.join(app.config["UPLOAD_FOLDER"], image_filename)
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)  # Ensure directory exists
+        image.save(image_path)
 
     new_dog = Dogs(
         name=name,
@@ -68,7 +81,7 @@ def add_dog():
         price=price,
         vaccinated=vaccinated,
         description=description,
-        image=f"static/uploads/{image_filename}" if image_filename else "static/default.jpg"
+        image=f"static/uploads/{image_filename}"
     )
 
     db.session.add(new_dog)
@@ -86,6 +99,13 @@ def delete_dog(dog_id):
     dog = Dogs.query.get(dog_id)
     if not dog:
         return jsonify({"error": "Dog not found"}), 404
+
+    # Remove image file if not default
+    if dog.image != "static/uploads/default.jpg":
+        try:
+            os.remove(dog.image)
+        except FileNotFoundError:
+            pass  # Ignore if file doesn't exist
 
     db.session.delete(dog)
     db.session.commit()
@@ -115,12 +135,21 @@ def edit_dog(dog_id):
     image = request.files.get("image")
     if image and allowed_file(image.filename):
         image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        image_path = os.path.join(app.config["UPLOAD_FOLDER"], image_filename)
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)  # Ensure directory exists
+        image.save(image_path)
+        
+        # Remove old image if it exists and is not default
+        if dog.image != "static/uploads/default.jpg":
+            try:
+                os.remove(dog.image)
+            except FileNotFoundError:
+                pass  # Ignore if file doesn't exist
+        
         dog.image = f"static/uploads/{image_filename}"
 
     db.session.commit()
     return jsonify({"message": "Dog updated successfully!"})
-
 #************************************ route for home page **************************************************
 @app.route("/")
 def home():
