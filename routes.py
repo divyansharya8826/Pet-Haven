@@ -2,6 +2,8 @@ from flask import Flask, jsonify, render_template, request, session, redirect, u
 import os
 from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, ServiceProvider, ServiceProviderStatus, PaymentStatus
 import uuid
+from flask import render_template, jsonify
+from models import ServiceProvider
 
 #************************************* secret key for the session *******************************************
 app.secret_key = str(uuid.uuid4())
@@ -303,6 +305,25 @@ def service_providers():
     providers = ServiceProvider.query.filter_by(status=ServiceProviderStatus.ACCEPTED).all()
     return render_template('service_provider.html', providers=providers)
 
+
+
+@app.route('/service-details/<service_id>')
+@app.route('/service-details/<service_id>')
+def service_details(service_id):
+    provider = ServiceProvider.query.get_or_404(service_id)
+    # Convert the provider object to a dictionary
+    provider_dict = {
+        "name": provider.name,
+        "service_name": provider.service_name,
+        "address": provider.address,
+        "hourly_rate": provider.hourly_rate,
+        "experience": provider.experience,
+        "description": provider.description,
+        "status": provider.status.value,  # Convert Enum to string
+        "document_folder": provider.document_folder
+    }
+    print(provider_dict)
+    return render_template('service_details.html', provider=provider_dict)
 
 if __name__ == "__main__":
     app.run(debug=True)
