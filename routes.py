@@ -11,14 +11,115 @@ app.secret_key = str(uuid.uuid4())
 #************************************ route for temprary login ***********************************************
 @app.route("/login")
 def login():
-    user_id = request.args.get("user_id")  # Get user_id from URL
+    user_id = request.args.get("user_id")  
+    admin_id = request.args.get("admin_id")  
 
-    if not user_id:
-        return "Welcome to Pet Haven - Please login to continue!"
+    if admin_id:  # If admin is logging in
+        session["user_id"] = admin_id
+        session["role"] = "admin"
+        print("Admin Logged In:", session)  # Debugging output
+        return redirect(url_for("admin_dashboard"))    
 
-    session["user_id"] = user_id  # Store user_id in session
+    elif user_id:  # If regular user is logging in
+        session["user_id"] = user_id
+        session["role"] = "user"
+        print("User Logged In:", session)  # Debugging output
+        return redirect("/")    
 
-    return redirect("/")
+    else:  # If no credentials are provided
+        return "Welcome to Pet Haven - Please login to continue!" 
+
+@app.route("/admin")
+def admin_dashboard():
+    print("Admin Dashboard Session:", session)  # Debugging output
+    if session.get("role") != "admin":
+        return "Access Denied! Admins only.", 403  
+
+    return render_template("admin.html")
+
+# ************************** Route to Add a New Dog **************************
+@app.route("/admin/dogs/add", methods=["POST"])
+def add_dog():
+    if session.get("role") != "admin":
+        return jsonify({"error": "Access Denied! Admins only"}), 403
+    
+    data = request.form
+    name = data.get("name")
+    breed = data.get("breed")
+    age = data.get("age")
+    price = data.get("price")
+    vaccinated = data.get("vaccinated", "No")  # Default to 'No'
+    description = data.get("description")
+
+    if not all([name, breed, age, price, description]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Handle Image Upload
+    image = request.files.get("image")
+    image_filename = None
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+
+    new_dog = Dogs(
+        name=name,
+        breed=breed,
+        age=age,
+        price=price,
+        vaccinated=vaccinated,
+        description=description,
+        image=f"static/uploads/{image_filename}" if image_filename else "static/default.jpg"
+    )
+
+    db.session.add(new_dog)
+    db.session.commit()
+
+    return jsonify({"message": "Dog added successfully!", "dog_id": new_dog.dog_id})
+
+
+# ************************** Route to Delete a Dog **************************
+@app.route("/admin/dogs/delete/<string:dog_id>", methods=["DELETE"])
+def delete_dog(dog_id):
+    if session.get("role") != "admin":
+        return jsonify({"error": "Access Denied! Admins only"}), 403
+
+    dog = Dogs.query.get(dog_id)
+    if not dog:
+        return jsonify({"error": "Dog not found"}), 404
+
+    db.session.delete(dog)
+    db.session.commit()
+
+    return jsonify({"message": "Dog deleted successfully!"})
+
+
+# ************************** Route to Edit a Dog **************************
+@app.route("/admin/dogs/edit/<string:dog_id>", methods=["POST"])
+def edit_dog(dog_id):
+    if session.get("role") != "admin":
+        return jsonify({"error": "Access Denied! Admins only"}), 403
+
+    dog = Dogs.query.get(dog_id)
+    if not dog:
+        return jsonify({"error": "Dog not found"}), 404
+
+    data = request.form
+    dog.name = data.get("name", dog.name)
+    dog.breed = data.get("breed", dog.breed)
+    dog.age = data.get("age", dog.age)
+    dog.price = data.get("price", dog.price)
+    dog.vaccinated = data.get("vaccinated", dog.vaccinated)
+    dog.description = data.get("description", dog.description)
+
+    # Handle Image Upload
+    image = request.files.get("image")
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        dog.image = f"static/uploads/{image_filename}"
+
+    db.session.commit()
+    return jsonify({"message": "Dog updated successfully!"})
 
 #************************************ route for home page **************************************************
 @app.route("/")
@@ -26,7 +127,6 @@ def home():
     if "user_id" in session:
         return render_template("petshop.html")
     return redirect("/login")
-
 
 #************************************** Individual Dog Display route ****************************************
 
@@ -283,7 +383,6 @@ def service_providers():
     return render_template('service_provider.html', providers=providers)
 
 
-
 @app.route('/service-details/<service_id>')
 @app.route('/service-details/<service_id>')
 def service_details(service_id):
@@ -304,3 +403,5 @@ def service_details(service_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+#initial code
