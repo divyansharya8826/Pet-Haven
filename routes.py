@@ -4,6 +4,7 @@ from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, S
 import uuid
 from flask import render_template, jsonify
 from models import ServiceProvider
+from datetime import datetime, timedelta
 
 #************************************* secret key for the session *******************************************
 app.secret_key = str(uuid.uuid4())
@@ -210,14 +211,14 @@ def order_confirm():
 
     user_id = session["user_id"]
 
-    # ✅ Fetch latest cart data instead of order data
+    # Fetch latest cart data instead of order data
     cart = Cart.query.filter_by(user_id=user_id).first()
 
     if not cart or not cart.cart_items:
         flash("Your cart is empty!", "warning")
         return redirect(url_for("cart"))
 
-    # ✅ Fetch current cart items
+    # Fetch current cart items
     cart_items = [
         {
             "id": item.dog.dog_id,
@@ -248,24 +249,24 @@ def place_order():
     if not cart or not cart.cart_items:
         return jsonify({"error": "Your cart is empty!"}), 400
 
-    # ✅ Calculate total amount dynamically
+    # Calculate total amount dynamically
     total_amount = sum(item.dog.price for item in cart.cart_items)
 
-    # ✅ Create a new order only now (not earlier)
+    # Create a new order only now (not earlier)
     order = Order(user_id=user_id, total_amount=total_amount, shipping_address=address, payment_status=PaymentStatus.SUCCESS)
     db.session.add(order)
     db.session.commit()
 
-    # ✅ Move cart items to order details
+    # Move cart items to order details
     for cart_item in cart.cart_items:
         order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, quantity=cart_item.quantity)
         db.session.add(order_item)
 
-    # ✅ Clear the cart after order placement
+    # Clear the cart after order placement
     CartItem.query.filter_by(cart_id=cart.cart_id).delete()
     db.session.commit()
 
-    # ✅ Delete empty cart
+    # Delete empty cart
     db.session.delete(cart)
     db.session.commit()
 
@@ -306,8 +307,6 @@ def service_providers():
     return render_template('service_provider.html', providers=providers)
 
 
-
-@app.route('/service-details/<service_id>')
 @app.route('/service-details/<service_id>')
 def service_details(service_id):
     provider = ServiceProvider.query.get_or_404(service_id)
@@ -322,8 +321,61 @@ def service_details(service_id):
         "status": provider.status.value,  # Convert Enum to string
         "document_folder": provider.document_folder
     }
-    print(provider_dict)
     return render_template('service_details.html', provider=provider_dict)
+
+#*************************************** routes for booking service providers *******************************
+@app.route('/book-service', methods=['POST'])
+def book_service():
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401  # Ensure user is logged in
+
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400  # Handle missing data
+
+    user_id = session["user_id"]
+    service_id = data.get("service_id")
+    date = data.get("date")
+    time = data.get("time")
+    duration = int(data.get("duration"))
+    
+    # Ensure valid inputs
+    if not service_id or not date or not time or not duration:
+        return jsonify({"error": "Missing booking details"}), 400
+
+    # Convert date and time to a proper format
+    booking_datetime = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+
+    # Calculate total cost
+    provider = ServiceProvider.query.get_or_404(service_id)
+    total_cost = provider.hourly_rate * duration
+
+    # Store Booking in `booking` Table
+    booking = Booking(
+        user_id=user_id,
+        booking_date=booking_datetime,
+        duration=timedelta(hours=duration),
+        total_cost=total_cost
+    )
+    db.session.add(booking)
+    db.session.commit()
+
+    # Store Booking Details in `booking_detail` Table
+    booking_detail = BookingDetail(
+        booking_id=booking.booking_id,
+        service_name=provider.service_name,
+        service_price=total_cost
+    )
+    db.session.add(booking_detail)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Booking confirmed successfully!",
+        "booking_id": booking.booking_id,
+        "total_cost": total_cost
+    })
+
 
 if __name__ == "__main__":
     app.run(debug=True)
