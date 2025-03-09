@@ -1,16 +1,7 @@
-// Service Data
-const service = {
-    name: "John Smith",
-    service_name: "Dog Grooming",
-    address: "123 Pet Street, New York, NY",
-    hourly_rate: 500,
-    experience: "5 years",
-    description: "Indulge your pet with our elite dog grooming services. Includes premium bathing, precision trimming, and bespoke styling using only the finest pet-safe products. Enjoy a stress-free, luxurious experience tailored to your pet's unique needs.",
-    status: "Accepted",
-    document_folder: "static/documents/john_smith_docs"
-};
+const providerDataElement = document.getElementById('provider-data');
+const provider = JSON.parse(providerDataElement.textContent);
 
-// Review Data
+// Review Data (still hardcoded for now)
 const reviews = [
     {
         text: "An absolutely luxurious experience for my pup! The attention to detail is unmatched.",
@@ -33,13 +24,12 @@ const reviews = [
 function renderServiceDetails() {
     const serviceDetails = document.getElementById('serviceDetails');
     serviceDetails.innerHTML = `
-        <p><strong>Provider</strong><br>${service.name}</p>
-        <p><strong>Location</strong><br>${service.address}</p>
-        <p><strong>Rate</strong><br>$${service.hourly_rate}/hour</p>
-        <p><strong>Experience</strong><br>${service.experience}</p>
-        <p><strong>Description</strong><br>${service.description}</p>
-        <p><strong>Status</strong><br><span class="status-accepted">${service.status}</span></p>
-        <p><strong>Documents</strong><br>${service.document_folder}</p>
+        <p><strong>Provider</strong><br>${provider.name}</p>
+        <p><strong>Location</strong><br>${provider.address}</p>
+        <p><strong>Rate</strong><br>$${provider.hourly_rate}/hour</p>
+        <p><strong>Experience</strong><br>${provider.experience}</p>
+        <p><strong>Description</strong><br>${provider.description}</p>
+        <p><strong>Status</strong><br><span class="status-accepted">${provider.status}</span></p>
     `;
 }
 
@@ -61,10 +51,10 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
     const date = document.getElementById('date').value;
     const time = document.getElementById('time').value;
     const duration = document.getElementById('duration').value;
-    const totalCost = service.hourly_rate * parseInt(duration);
+    const totalCost = provider.hourly_rate * parseInt(duration);
 
     if (date && time && duration) {
-        alert(`Booking Secured!\n\nService: ${service.service_name}\nProvider: ${service.name}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} hour${duration > 1 ? 's' : ''}\nTotal Cost: $${totalCost.toLocaleString()}`);
+        alert(`Booking Secured!\n\nService: ${provider.service_name}\nProvider: ${provider.name}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} hour${duration > 1 ? 's' : ''}\nTotal Cost: $${totalCost.toLocaleString()}`);
         document.getElementById('bookingForm').reset();
         document.getElementById('costPreview').innerHTML = '';
     }
@@ -74,7 +64,7 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
 document.getElementById('duration').addEventListener('change', (e) => {
     const duration = e.target.value;
     if (duration) {
-        const totalCost = service.hourly_rate * parseInt(duration);
+        const totalCost = provider.hourly_rate * parseInt(duration);
         document.getElementById('costPreview').innerHTML = `Total: $${totalCost.toLocaleString()}`;
     } else {
         document.getElementById('costPreview').innerHTML = '';
@@ -84,8 +74,9 @@ document.getElementById('duration').addEventListener('change', (e) => {
 // Set minimum date to today
 document.getElementById('date').setAttribute('min', new Date().toISOString().split('T')[0]);
 
-// Initialize
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded'); 
     renderServiceDetails();
     renderReviews();
 });

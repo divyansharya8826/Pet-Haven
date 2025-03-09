@@ -90,3 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, index * 200);
     });
 });
+
+
+function bookService(serviceId) {
+    window.location.href = `/service-details/${serviceId}`;
+}
