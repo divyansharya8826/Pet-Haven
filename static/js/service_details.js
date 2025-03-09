@@ -35,7 +35,7 @@ function renderServiceDetails() {
     serviceDetails.innerHTML = `
         <p><strong>Provider</strong><br>${service.name}</p>
         <p><strong>Location</strong><br>${service.address}</p>
-        <p><strong>Rate</strong><br>$${service.hourly_rate}/hour</p>
+        <p><strong>Rate</strong><br>Rs.${service.hourly_rate}/hour</p>
         <p><strong>Experience</strong><br>${service.experience}</p>
         <p><strong>Description</strong><br>${service.description}</p>
         <p><strong>Status</strong><br><span class="status-accepted">${service.status}</span></p>
@@ -75,7 +75,7 @@ document.getElementById('duration').addEventListener('change', (e) => {
     const duration = e.target.value;
     if (duration) {
         const totalCost = service.hourly_rate * parseInt(duration);
-        document.getElementById('costPreview').innerHTML = `Total: $${totalCost.toLocaleString()}`;
+        document.getElementById('costPreview').innerHTML = `Total: Rs.${totalCost.toLocaleString()}`;
     } else {
         document.getElementById('costPreview').innerHTML = '';
     }

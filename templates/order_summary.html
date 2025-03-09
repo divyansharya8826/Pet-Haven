@@ -208,15 +208,33 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        fetch("/order-confirm", { method: "POST" })
+      document.querySelector(".confirm-order").addEventListener("click", function () {
+        fetch("/order-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: document.getElementById("address").value,
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            zip: document.getElementById("zip").value
+          })
+        })
         .then(response => response.json())
         .then(data => {
-            alert(data.message); // Show popup message
-            window.location.href = "/order-confirm"; // Redirect to confirmation page
+            if (data.message) {
+                alert(data.message); // Show popup message
+                window.location.href = `/order-confirm`; // Redirect to order confirmation page with order_id
+            }
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Failed to place order. Please try again!");
+        });
+      });
     });
   </script>
+
+  <script src="{{ url_for('static', filename='js/order.js') }}"></script>
 
   <script src="static/js/script.js"></script>
   </body>
