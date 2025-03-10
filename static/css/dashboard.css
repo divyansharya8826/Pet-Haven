@@ -48,7 +48,7 @@ body {
 
 .tabs {
     display: flex;
-    width: 90%;
+    width: 100%;
     gap: 1rem;
     margin-bottom: 2rem;
     background: rgba(0, 0, 0, 0.1);
@@ -104,6 +104,9 @@ body {
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     text-align: center;
     transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     overflow: hidden;
     position: relative;
 }
@@ -121,18 +124,6 @@ body {
     width: 100%;
     height: 5px;
     border-radius: 15px 15px 0 0;
-}
-
-.service-card .category {
-    background: #777676;
-    color: #fff;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    display: inline-block;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .service-card img {
@@ -164,44 +155,7 @@ body {
     color: #6c757d;
     margin-bottom: 1.5rem;
     line-height: 1.5;
-}
-
-.service-card ul {
-    list-style-type: none;
-    text-align: left;
-    margin-bottom: 1.5rem;
-    padding-left: 1rem;
-}
-
-.service-card li {
-    margin: 0.7rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    color: #6c757d;
-    font-size: 1rem;
-}
-
-.service-card li::before {
-    content: "✔";
-    color: #2ecc71;
-    font-size: 1rem;
-    margin-right: 0.5rem;
-}
-
-.service-card .duration {
-    color: #aaa;
-    font-style: italic;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.service-card .price {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #6c757d;
-    margin-bottom: 1.5rem;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    flex-grow: 1;
 }
 
 .book-btn {

@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Manage Dogs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 </head>
 <body>
+<<<<<<< HEAD
     <div class="admin-container">
         <h1>Manage Dog Gallery</h1>
         
@@ -24,10 +33,66 @@
                 <textarea id="dog-description" placeholder="Short Description"></textarea>
                 <button type="submit">Add Dog</button>
             </form>
+=======
+    <!-- Burger Icon -->
+    <div class="burger" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </div>
+  
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>Pet Haven</h2>
+>>>>>>> 7df83347a3fc89554a5be51eb8f02bc3fb69e08b
         </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item active"><a href="/admin"> <i class="fas fa-images"></i> Dog Gallery</a></li>
+            <li class="nav-item"><i class="fas fa-concierge-bell"></i> Services </a></li>
+            <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+        </ul>
+      </div>
+  
+      <!-- Main Content -->
+      <div class="main-content" id="mainContent">
+        <!-- Navbar -->
+        <div class="navbar" id="navbar">
+            <h2>Dog Gallery</h2>
+            <div class="nav-right">
+                <div class="notification">
+                    <i class="fas fa-bell fa-2x"></i>
+                    <span class="badge">2</span>
+                </div>
+                <div class="profile">
+                    <div class="profile-pic">JD</div>
+                    <span>John Doe</span>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h1>Manage Dog Gallery</h1>
+        
+            <button onclick="showAddDogForm()">+ Add New Dog</button>
 
-        <h2>Dog Listings</h2>
-        <div id="dog-list"></div>
+            <div id="add-dog-form" class="hidden">
+                <h3>Add a Dog</h3>
+                <form id="dog-form" enctype="multipart/form-data">
+                    <input type="text" id="dog-name" placeholder="Dog Name" required>
+                    <input type="text" id="dog-breed" placeholder="Breed" required>
+                    <input type="text" id="dog-age" placeholder="Age" required>
+                    <input type="number" id="dog-price" placeholder="Price (INR)" required>
+                    <textarea id="dog-description" placeholder="Short Description"></textarea>
+                    <input type="file" id="dog-image" placeholder="Upload Image" required>
+                    <button type="submit">Add Dog</button>
+                </form>
+            </div>
+
+            <section class="dog-listing">
+                <h2>Dog Listings</h2>
+                <div id="dog-list"></div>
+            </section>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
