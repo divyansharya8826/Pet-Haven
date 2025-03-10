@@ -170,37 +170,42 @@
 
         // Confirm Order & Place in Database
         function confirmOrder() {
-          const address = document.getElementById("address").value.trim();
-          const city = document.getElementById("city").value.trim();
-          const state = document.getElementById("state").value.trim();
-          const zip = document.getElementById("zip").value.trim();
+            const address = document.getElementById("address").value.trim();
+            const city = document.getElementById("city").value.trim();
+            const state = document.getElementById("state").value.trim();
+            const zip = document.getElementById("zip").value.trim();
 
-          const requestData = { address, city, state, zip };
+            const requestData = { address, city, state, zip };
 
-          console.log("Sending Order Data:", requestData);  // Log request payload
+            console.log("Sending Order Data:", requestData);  // Debugging: Log the payload
 
-          fetch("/order-confirm", {
-            method: "POST",
-            headers: { 
-              "Content-Type": "application/json",  // Ensure proper headers
-              "Accept": "application/json"
-            },
-            body: JSON.stringify(requestData)
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.error) {
-              console.error("Server Error:", data.error);
-              alert("Order Failed: " + data.error);
-            } else {
-              alert("Order Placed Successfully!");
-              window.location.href = `/order-confirm?order_id=${data.order_id}`; // Redirect after success
-            }
-          })
-          .catch(error => {
-            console.error("Fetch Error:", error);
-            alert("Failed to place order. Please try again!");
-          });
+            fetch("/order-confirm", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",  // Ensure proper headers
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(requestData)  // Ensure payload is properly serialized
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error("Server Error:", data.error);
+                    alert("Order Failed: " + data.error);
+                } else {
+                alert("Order Placed Successfully!");
+                window.location.href = `/order-confirm?order_id=${data.order_id}`; // Redirect after success
+                }
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                alert("Failed to place order. Please try again!");
+            });
         }
     </script>
 </body>

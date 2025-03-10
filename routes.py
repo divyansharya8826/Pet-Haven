@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for, flash
 import os
-from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, ServiceProvider, ServiceProviderStatus, PaymentStatus
+from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, ServiceProvider, ServiceProviderStatus, PaymentStatus, Booking, BookingDetail
 import uuid
 from flask import render_template, jsonify
 from models import ServiceProvider
@@ -356,7 +356,7 @@ def order_summary():
     
 #************************************* route for order confirm **********************************************
 
-@app.route("/order-confirm", methods=["POST" , "GET"])
+@app.route("/order-confirm", methods=["POST"])
 def order_confirm():
     if "user_id" not in session:
         return jsonify({"error": "User not logged in"}), 401
@@ -369,35 +369,75 @@ def order_confirm():
     if not data:
         return jsonify({"error": "Invalid JSON data"}), 400
 
-    address = f"{data.get('address')}, {data.get('city')}, {data.get('state')} - {data.get('zip')}"
-    user_id = session["user_id"]
-    cart = Cart.query.filter_by(user_id=user_id).first()
+    try:
+        address = f"{data.get('address')}, {data.get('city')}, {data.get('state')} - {data.get('zip')}"
+        user_id = session["user_id"]
+        cart = Cart.query.filter_by(user_id=user_id).first()
 
-    if not cart or not cart.cart_items:
-        return jsonify({"error": "Your cart is empty!"}), 400
+        if not cart or not cart.cart_items:
+            return jsonify({"error": "Your cart is empty!"}), 400
 
-    # Calculate total amount
-    total_amount = sum(item.dog.price for item in cart.cart_items)
+        # Calculate total amount
+        total_amount = sum(item.dog.price for item in cart.cart_items)
 
-    # Create a new order
-    order = Order(user_id=user_id, total_amount=total_amount, shipping_address=address, payment_status=PaymentStatus.SUCCESS)
-    db.session.add(order)
-    db.session.commit()
+        # Create a new order
+        order = Order(user_id=user_id, total_amount=total_amount, shipping_address=address, payment_status=PaymentStatus.SUCCESS)
+        db.session.add(order)
+        db.session.commit()
 
-    # Move cart items to order details
-    for cart_item in cart.cart_items:
-        order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, quantity=cart_item.quantity)
-        db.session.add(order_item)
+        # Move cart items to order details
+        for cart_item in cart.cart_items:
+            order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, quantity=cart_item.quantity)
+            db.session.add(order_item)
 
-    # Clear the cart after order confirmation
-    CartItem.query.filter_by(cart_id=cart.cart_id).delete()
-    db.session.delete(cart)
-    db.session.commit()
+        # Clear the cart after order confirmation
+        CartItem.query.filter_by(cart_id=cart.cart_id).delete()
+        db.session.delete(cart)
+        db.session.commit()
 
-    return jsonify({
-        "message": "Order confirmed successfully!",
-        "order_id": order.order_id  # Send redirect URL
-    })
+        return jsonify({
+            "message": "Order confirmed successfully!",
+            "order_id": order.order_id  # Send redirect URL
+        })
+
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        return jsonify({"error": str(e)}), 500
+
+#************************************* route for order confirmation page get request **************************************
+
+@app.route("/order-confirm", methods=["GET"])
+def order_confirm_page():
+    if "user_id" not in session:
+        return redirect(url_for("login"))  # Redirect if user not logged in
+
+    order_id = request.args.get("order_id")  # Get order_id from query parameters
+    if not order_id:
+        flash("Invalid order ID!", "error")
+        return redirect(url_for("home"))  # Redirect to home if no order_id
+
+    # Fetch the order details from the database
+    order = Order.query.filter_by(order_id=order_id, user_id=session["user_id"]).first()
+    if not order:
+        flash("Order not found!", "error")
+        return redirect(url_for("home"))  # Redirect if order not found
+
+    # Fetch the order items (dogs) from the database
+    order_items = OrderDetail.query.filter_by(order_id=order_id).all()
+    cart = []
+    for item in order_items:
+        dog = Dogs.query.filter_by(dog_id=item.dog_id).first()
+        if dog:
+            cart.append({
+                "id": dog.dog_id,
+                "name": dog.name,
+                "breed": dog.breed,
+                "age": dog.age,
+                "price": dog.price,
+                "image": dog.image
+            })
+
+    return render_template("order_confirm.html", cart=cart)
 
 #************************************* route for log out ******************************************************
 @app.route("/logout")
