@@ -56,7 +56,7 @@ document.getElementById("dog-form").addEventListener("submit", function (event) 
     formData.append("age", document.getElementById("dog-age").value.trim());
     formData.append("price", document.getElementById("dog-price").value.trim());
     formData.append("description", document.getElementById("dog-description").value.trim());
-    formData.append("image", document.getElementById("dog-image").files[0]);  // ✅ Image file
+    formData.append("image", document.getElementById("dog-image").files[0]);  // Image file
 
     fetch("/admin/dogs/add", {
         method: "POST",
@@ -77,7 +77,7 @@ function editDog(dogId) {
     const newPrice = prompt("Enter new price:");
 
     if (newName && newPrice) {
-        fetch(`/admin/dogs/edit/${dogId}`, {   // ✅ Corrected URL
+        fetch(`/admin/dogs/edit/${dogId}`, {   // Corrected URL
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: newName, price: newPrice })

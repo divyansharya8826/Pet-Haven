@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const state = document.getElementById("state").value;
         const zip = document.getElementById("zip").value;
 
-        fetch("/place-order", {  // ✅ Create order on confirmation, not checkout
+        fetch("/place-order", {  // Create order on confirmation, not checkout
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

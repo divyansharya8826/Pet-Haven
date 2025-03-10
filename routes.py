@@ -133,7 +133,7 @@ def edit_dog(dog_id):
     if not dog:
         return jsonify({"error": "Dog not found"}), 404
 
-    # ✅ Handle JSON data properly
+    # Handle JSON data properly
     if request.is_json:
         data = request.get_json()
         dog.name = data.get("name", dog.name)
@@ -212,6 +212,34 @@ def cart_page():
 
     return render_template("cart.html", cart=cart_items)
 
+#**************************************** route for cart api ************************************************
+@app.route("/api/cart", methods=["GET"])
+def get_cart_items():
+    """Fetch the current user's cart items from the database."""
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401  # User must be logged in
+
+    user_id = session["user_id"]
+    cart = Cart.query.filter_by(user_id=user_id).first()
+
+    if not cart or not cart.cart_items:
+        return jsonify({"cart": []})  # Return empty list if no cart items
+
+    # Fetch cart items along with dog details
+    cart_items = [
+        {
+            "id": item.dog.dog_id,
+            "name": item.dog.name,
+            "breed": item.dog.breed,
+            "age": item.dog.age,
+            "price": item.dog.price,
+            "image": item.dog.image
+        }
+        for item in cart.cart_items
+    ]
+
+    return jsonify({"cart": cart_items})
+
 #******************************** route for add to cart functionality ***************************************
 @app.route("/cart/add", methods=['POST'])
 def add_to_cart():
@@ -276,102 +304,82 @@ def remove_from_cart():
     if not cart:
         return jsonify({"error": "Cart not found"}), 404
 
+    # Find the cart item to remove
     cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
     if cart_item:
-        # Fetch dog price before deleting
-        dog = Dogs.query.get(dog_id)
-
-        # Reduce total_amount before deleting item
-        if dog:
-            cart.total_amount -= dog.price
-
         db.session.delete(cart_item)
         db.session.commit()
+    
+    # Recalculate total amount
+    total_amount = sum(item.dog.price for item in cart.cart_items)
+    cart.total_amount = total_amount  # Update cart total amount
+    db.session.commit()
 
-        # If no items left, delete cart
-        if not cart.cart_items:
-            db.session.delete(cart)
-            db.session.commit()
-
-    return jsonify({"message": "Dog removed from cart!", "cart_count": len(cart.cart_items), "total_amount": cart.total_amount})
+    return jsonify({
+        "message": "Dog removed from cart!",
+        "cart_count": len(cart.cart_items),
+        "total_amount": total_amount
+    })
 
 #************************************* route for order summary ***********************************************
 
 @app.route("/order")
 def order_summary():
     if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    user_id = session["user_id"]
-    cart = Cart.query.filter_by(user_id=user_id).first()
-
-    if not cart or not cart.cart_items:
-        return render_template("order_summary.html", cart=[])
-
-    order_items = [
-        {
-            "id": item.dog.dog_id if item.dog else None,
-            "name": item.dog.name if item.dog else "Service Booking",
-            "breed": item.dog.breed if item.dog else "N/A",
-            "age": item.dog.age if item.dog else "N/A",
-            "price": item.dog.price if item.dog else item.booking.total_cost,
-            "image": item.dog.image if item.dog else "static/images/default.jpg"
-        }
-        for item in cart.cart_items
-    ]
-    return render_template("order_summary.html", cart=order_items)
-    
-#************************************* route for order confirm **********************************************
-
-@app.route('/order-confirm', methods=['POST', 'GET'])
-def order_confirm():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
+        return redirect(url_for("login"))  # Redirect if user not logged in
 
     user_id = session["user_id"]
 
-    # Fetch latest cart data instead of order data
+    # Fetch the user's cart
     cart = Cart.query.filter_by(user_id=user_id).first()
 
     if not cart or not cart.cart_items:
         flash("Your cart is empty!", "warning")
-        return redirect(url_for("cart"))
+        return redirect(url_for("cart_page"))  # Redirect to cart page if empty
 
-    # Fetch current cart items
+    # Get cart items safely
     cart_items = [
         {
-            "id": item.dog.dog_id,
-            "name": item.dog.name,
-            "breed": item.dog.breed,
-            "age": item.dog.age,
-            "price": item.dog.price,
-            "image": item.dog.image
+            "id": item.dog.dog_id if item.dog else None,
+            "name": item.dog.name if item.dog else "Unknown",
+            "breed": item.dog.breed if item.dog else "N/A",
+            "age": item.dog.age if item.dog else "N/A",
+            "price": item.dog.price if item.dog else 0,
+            "image": item.dog.image if item.dog else "static/images/default.jpg"
         }
-        for item in cart.cart_items
+        for item in cart.cart_items if item.dog  # Ensure `dog` exists
     ]
 
-    return render_template("order_confirm.html", cart=cart_items)
+    total_amount = sum(item["price"] for item in cart_items)  # Calculate total dynamically
 
-#************************************* route for placing the order *******************************************
+    return render_template("order_summary.html", cart=cart_items, total_amount=total_amount)
+    
+#************************************* route for order confirm **********************************************
 
-@app.route('/place-order', methods=['POST'])
-def place_order():
+@app.route("/order-confirm", methods=["POST" , "GET"])
+def order_confirm():
     if "user_id" not in session:
         return jsonify({"error": "User not logged in"}), 401
 
-    data = request.get_json()
-    address = f"{data.get('address')}, {data.get('city')}, {data.get('state')} - {data.get('zip')}"
+    # Ensure request is JSON
+    if not request.is_json:
+        return jsonify({"error": "Invalid Content-Type. Expected application/json"}), 415
 
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON data"}), 400
+
+    address = f"{data.get('address')}, {data.get('city')}, {data.get('state')} - {data.get('zip')}"
     user_id = session["user_id"]
     cart = Cart.query.filter_by(user_id=user_id).first()
 
     if not cart or not cart.cart_items:
         return jsonify({"error": "Your cart is empty!"}), 400
 
-    # Calculate total amount dynamically
+    # Calculate total amount
     total_amount = sum(item.dog.price for item in cart.cart_items)
 
-    # Create a new order only now (not earlier)
+    # Create a new order
     order = Order(user_id=user_id, total_amount=total_amount, shipping_address=address, payment_status=PaymentStatus.SUCCESS)
     db.session.add(order)
     db.session.commit()
@@ -381,15 +389,15 @@ def place_order():
         order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, quantity=cart_item.quantity)
         db.session.add(order_item)
 
-    # Clear the cart after order placement
+    # Clear the cart after order confirmation
     CartItem.query.filter_by(cart_id=cart.cart_id).delete()
-    db.session.commit()
-
-    # Delete empty cart
     db.session.delete(cart)
     db.session.commit()
 
-    return jsonify({"message": "Order confirmed successfully!", "order_id": order.order_id})
+    return jsonify({
+        "message": "Order confirmed successfully!",
+        "order_id": order.order_id  # Send redirect URL
+    })
 
 #************************************* route for log out ******************************************************
 @app.route("/logout")

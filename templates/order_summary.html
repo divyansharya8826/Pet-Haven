@@ -1,320 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pet Haven - Order Summary</title>
-    <link rel="stylesheet" href="static/css/base.css" />
-    <link rel="stylesheet" href="static/css/order_summary.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-  </head>
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/order_summary.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
 
-  <body>
-    <!-- Burger Icon -->
-    <div class="burger" onclick="toggleSidebar()">
-      <i class="fas fa-bars"></i>
-    </div>
-
+<body>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="logo">
-          <i class="fas fa-paw"></i>
-          <h2>Pet Haven</h2>
-      </div>
-      <ul class="nav-menu">
-          <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
-          <li class="nav-item active"><a href="/"> <i class="fas fa-images"></i> Dog Gallery</a></li>
-          <li class="nav-item"><a href="/services"> <i class="fas fa-concierge-bell"></i> Services </a></li>
-          <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
-      </ul>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>Pet Haven</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item active"><a href="/"> <i class="fas fa-images"></i> Dog Gallery</a></li>
+            <li class="nav-item"><a href="/services"> <i class="fas fa-concierge-bell"></i> Services </a></li>
+            <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+        </ul>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-      <!-- Navbar -->
-      <div class="navbar" id="navbar">
-        <h2>Dog Gallery</h2>
-        <div class="nav-right">
-          <div class="notification">
-            <i class="fas fa-bell fa-2x"></i>
-            <span class="badge">2</span>
-          </div>
-          <div class="profile">
-            <div class="profile-pic">JD</div>
-            <span>John Doe</span>
-          </div>
+    <div class="main-content">
+        <div class="navbar">
+            <h2>Order Summary</h2>
         </div>
-      </div>
 
-      <div class="container">
-        <div class="order-container">
-          <!-- Left Section (Delivery Information & Payment) -->
-          <div class="left-section">
-            <div class="delivery-info">
-              <h2>Delivery Information</h2>
-              <form>
-                <label for="name">Name</label>
-                <input type="text" id="name" placeholder="Enter your name">
-                      
-                <label for="phone">Mobile Number</label>
-                <input type="text" id="phone" placeholder="+91 ">
-
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter your email">
-
-                <label for="address">Address</label>
-                <input type="text" id="address" placeholder="Enter your address">
-
-                <label for="city">City</label>
-                <input type="text" id="city" placeholder="Enter your city">
-
-                <label for="state">State</label>
-                <input type="text" id="state" placeholder="Enter your state">
-
-                <label for="zip">ZIP Code</label>
-                <input type="text" id="zip" placeholder="Enter ZIP code">
-              </form>
-            </div>
-
-            <div class="payment-method">
-              <h2>Payment Method</h2>
-              <label><input type="radio" name="payment" checked> Online Payment</label>
-              <label><input type="radio" name="payment"> Cash on Delivery</label>
-              <label><input type="radio" name="payment"> POS on Delivery</label>
-            </div>
-          </div>
-
-          <!-- Right Section (Order Summary) -->
-          <div class="right-section">
-            {% if cart %}
-              <div class="order-summary">
-                <h2>Order Summary</h2>
-                {% for item in cart %}
-                  <div class="order-item" data-id="{{ item.id }}">
-                    <img src="{{ item.image }}" alt="{{ item.name }}">
-                    <div class="item-details">
-                      <h3>{{ item.name }}</h3>
-                      <p>Breed: {{ item.breed }}</p>
-                      <p>Age: {{ item.age }}</p>
-                      <p id="price">Rs.{{ item.price }}</p>
+        <div class="container">
+            <div class="order-container">
+                <!-- Left Section (Delivery Information & Payment) -->
+                <div class="left-section">
+                    <div class="delivery-info">
+                        <h2>Delivery Information</h2>
+                        <form id="order-form">
+                            <label>Name</label>
+                            <input type="text" id="name" required>
+                            <label>Mobile Number</label>
+                            <input type="text" id="phone" required>
+                            <label>Email</label>
+                            <input type="email" id="email" required>
+                            <label>Address</label>
+                            <input type="text" id="address" required>
+                            <label>City</label>
+                            <input type="text" id="city" required>
+                            <label>State</label>
+                            <input type="text" id="state" required>
+                            <label>ZIP Code</label>
+                            <input type="text" id="zip" required>
+                        </form>
                     </div>
-                  </div>
-                {% endfor %}
-                <div class="order-total">
-                  <p><strong>Subtotal </strong> <span id="subtotal">Rs.{{ cart | sum(attribute='price') }}</span></p>
-                  <p><strong>Shipping </strong> <span>Free</span></p>
-                  <p><strong>Total </strong> <span id="total">Rs.{{ cart | sum(attribute='price') }}</span></p>
-                </div>                  
-              </div>
-            {% endif %}
-            <button class="confirm-order">Confirm Order</button>
-          </div>
+
+                    <div class="payment-method">
+                        <h2>Payment Method</h2>
+                        <label><input type="radio" name="payment" checked> Online Payment</label>
+                        <label><input type="radio" name="payment"> Cash on Delivery</label>
+                        <label><input type="radio" name="payment"> POS on Delivery</label>
+                    </div>
+                </div>
+
+                <!-- Right Section (Order Summary) -->
+                <div class="right-section">
+                    <div class="order-summary">
+                        <h2>Cart Items</h2>
+                        <div id="cart-items"></div>
+                        <div class="order-total">
+                            <p><strong>Subtotal</strong> <span id="subtotal">Rs. 0</span></p>
+                            <p><strong>Shipping</strong> <span>Free</span></p>
+                            <p><strong>Total</strong> <span id="total">Rs. 0</span></p>
+                        </div>
+                    </div>
+                    <button class="confirm-order">Confirm Order</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
-      /*********************************** input validation for order summary page **********************/
-      document.addEventListener("DOMContentLoaded", function () {
-        const confirmOrderBtn = document.querySelector(".confirm-order");
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchCartData(); // Load cart data when the page loads
 
-        confirmOrderBtn.addEventListener("click", function (event) {
-          if (!validateForm()) {
-            event.preventDefault(); // Prevent navigation if validation fails
-          } else {
-            savePaymentMethod();
-            window.location.href = "/order-confirm";
-          }
+            document.querySelector(".confirm-order").addEventListener("click", function (event) {
+                event.preventDefault();  // Prevent default form submission
+                if (validateForm()) {
+                    confirmOrder(); // Only proceed if validation passes
+                }
+            });
         });
 
+        // Fetch Cart Data from Database
+        function fetchCartData() {
+            fetch("/api/cart")
+            .then(response => response.json())
+            .then(data => {
+                const cartItemsContainer = document.getElementById("cart-items");
+                const subtotalElement = document.getElementById("subtotal");
+                const totalElement = document.getElementById("total");
+
+                cartItemsContainer.innerHTML = ""; // Clear previous items
+                let totalAmount = 0;
+
+                data.cart.forEach(item => {
+                    const cartItem = document.createElement("div");
+                    cartItem.classList.add("order-item");
+                    cartItem.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="item-details">
+                            <h3>${item.name}</h3>
+                            <p>Breed: ${item.breed}</p>
+                            <p>Age: ${item.age}</p>
+                            <p class="item-price">Rs. ${item.price}</p>
+                        </div>
+                        <button class="remove-from-cart" data-id="${item.id}">Remove</button>
+                    `;
+                    cartItemsContainer.appendChild(cartItem);
+                    totalAmount += item.price;
+                });
+
+                subtotalElement.textContent = `Rs. ${totalAmount}`;
+                totalElement.textContent = `Rs. ${totalAmount}`;
+
+                // Attach remove event listeners
+                document.querySelectorAll(".remove-from-cart").forEach(button => {
+                    button.addEventListener("click", function () {
+                        removeFromCart(this.getAttribute("data-id"));
+                    });
+                });
+            })
+            .catch(error => console.error("Error fetching cart data:", error));
+        }
+
+        // Remove Dog from Cart
+        function removeFromCart(dogId) {
+            fetch("/cart/remove", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ dog_id: dogId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Show success message
+                fetchCartData(); // Refresh cart
+            })
+            .catch(error => console.error("Error removing from cart:", error));
+        }
+
+        // Validate Form Before Order Submission
         function validateForm() {
+            const inputs = document.querySelectorAll("#order-form input");
             let isValid = true;
-            const errorMessages = [];
-            const name = document.getElementById("name");
-            const phone = document.getElementById("phone");
-            const email = document.getElementById("email");
-            const address = document.getElementById("address");
-            const city = document.getElementById("city");
-            const state = document.getElementById("state");
-            const zip = document.getElementById("zip");
-            const payment = document.querySelector('input[name="payment"]:checked');
+            let errorMessages = [];
 
-            const alphaRegex = /^[A-Za-z\s]+$/; // Allows only alphabets and spaces
-
-            // Validation rules
-            if (!alphaRegex.test(name.value.trim())) {
-                errorMessages.push("Name must contain only alphabets!");
-                isValid = false;
-            }
-
-            if (phone.value.trim() === "" || !/^\d{10}$/.test(phone.value)) {
-                errorMessages.push("Enter a valid mobile number!");
-                isValid = false;
-            }
-
-            if (email.value.trim() === "" || !/^\S+@\S+\.\S+$/.test(email.value)) {
-                errorMessages.push("Enter a valid email address!");
-                isValid = false;
-            }
-
-            if (address.value.trim() === "") {
-                errorMessages.push("Address is required!");
-                isValid = false;
-            }
-
-            if (!alphaRegex.test(city.value.trim())) {
-                errorMessages.push("City must contain only alphabets!");
-                isValid = false;
-            }
-
-            if (!alphaRegex.test(state.value.trim())) {
-                errorMessages.push("State must contain only alphabets!");
-                isValid = false;
-            }
-
-            if (zip.value.trim() === "" || !/^\d{6}$/.test(zip.value)) {
-                errorMessages.push("Enter a valid ZIP code!");
-                isValid = false;
-            }
-
-            if (!payment) {
-                errorMessages.push("Please select a payment method!");
-                isValid = false;
-            }
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    errorMessages.push(`${input.previousElementSibling.textContent} is required.`);
+                    isValid = false;
+                }
+            });
 
             if (!isValid) {
-              alert(errorMessages.join("\n"));
+                alert(errorMessages.join("\n"));
             }
-
             return isValid;
         }
 
-        function savePaymentMethod() {
-          const selectedPayment = document.querySelector('input[name="payment"]:checked');
-          if (selectedPayment) {
-            const paymentLabel  = selectedPayment.nextSibling.textContent.trim();
-            localStorage.setItem("paymentMethod", paymentLabel );
-          } else {
-            console.error("No payment method selected.");
-            localStorage.setItem("paymentMethod", "Not Selected");
-          }
-        }
-      });
-    </script>
+        // Confirm Order & Place in Database
+        function confirmOrder() {
+          const address = document.getElementById("address").value.trim();
+          const city = document.getElementById("city").value.trim();
+          const state = document.getElementById("state").value.trim();
+          const zip = document.getElementById("zip").value.trim();
 
-<<<<<<< HEAD
-      function validateForm() {
-          let isValid = true;
-          const errorMessages = [];
-          const name = document.getElementById("name");
-          const phone = document.getElementById("phone");
-          const email = document.getElementById("email");
-          const address = document.getElementById("address");
-          const city = document.getElementById("city");
-          const state = document.getElementById("state");
-          const zip = document.getElementById("zip");
-          const payment = document.querySelector('input[name="payment"]:checked');
+          const requestData = { address, city, state, zip };
 
-          const alphaRegex = /^[A-Za-z\s]+$/; // Allows only alphabets and spaces
+          console.log("Sending Order Data:", requestData);  // Log request payload
 
-          // Validation rules
-          if (!alphaRegex.test(name.value.trim())) {
-              errorMessages.push("Name must contain only alphabets!");
-              isValid = false;
-          }
-
-          if (phone.value.trim() === "" || !/^\d{10}$/.test(phone.value)) {
-              errorMessages.push("Enter a valid mobile number!");
-              isValid = false;
-          }
-
-          if (email.value.trim() === "" || !/^\S+@\S+\.\S+$/.test(email.value)) {
-              errorMessages.push("Enter a valid email address!");
-              isValid = false;
-          }
-
-          if (address.value.trim() === "") {
-              errorMessages.push("Address is required!");
-              isValid = false;
-          }
-
-          if (!alphaRegex.test(city.value.trim())) {
-              errorMessages.push("City must contain only alphabets!");
-              isValid = false;
-          }
-
-          if (!alphaRegex.test(state.value.trim())) {
-              errorMessages.push("State must contain only alphabets!");
-              isValid = false;
-          }
-
-          if (zip.value.trim() === "" || !/^\d{6}$/.test(zip.value)) {
-              errorMessages.push("Enter a valid ZIP code!");
-              isValid = false;
-          }
-
-          if (!payment) {
-              errorMessages.push("Please select a payment method!");
-              isValid = false;
-          }
-
-          if (!isValid) {
-            alert(errorMessages.join("\n"));
-          }
-
-          return isValid;
-      }
-
-      function savePaymentMethod() {
-        const selectedPayment = document.querySelector('input[name="payment"]:checked');
-        if (selectedPayment) {
-          const paymentLabel  = selectedPayment.nextSibling.textContent.trim();
-          localStorage.setItem("paymentMethod", paymentLabel );
-        } else {
-          console.error("No payment method selected.");
-          localStorage.setItem("paymentMethod", "Not Selected");
-        }
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-      document.querySelector(".confirm-order").addEventListener("click", function () {
-        fetch("/order-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            address: document.getElementById("address").value,
-            city: document.getElementById("city").value,
-            state: document.getElementById("state").value,
-            zip: document.getElementById("zip").value
+          fetch("/order-confirm", {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",  // Ensure proper headers
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(requestData)
           })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert(data.message); // Show popup message
-                window.location.href = `/order-confirm`; // Redirect to order confirmation page with order_id
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              console.error("Server Error:", data.error);
+              alert("Order Failed: " + data.error);
+            } else {
+              alert("Order Placed Successfully!");
+              window.location.href = `/order-confirm?order_id=${data.order_id}`; // Redirect after success
             }
-        })
-        .catch(error => {
-            console.error("Error:", error);
+          })
+          .catch(error => {
+            console.error("Fetch Error:", error);
             alert("Failed to place order. Please try again!");
-        });
-      });
-    });
-  </script>
-
-  <script src="{{ url_for('static', filename='js/order.js') }}"></script>
-
-  <script src="static/js/script.js"></script>
-=======
-    <script src="static/js/script.js"></script>
->>>>>>> 1100fc939e4a831c5a73ffc6ba190ce1d6f32af7
-  </body>
+          });
+        }
+    </script>
+</body>
 </html>
