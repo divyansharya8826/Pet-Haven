@@ -1,0 +1,8 @@
+{
+  "test_app.py::test_get_dogs": true,
+  "test_app.py::test_get_dog_by_id": true,
+  "test_app.py::test_dog_not_found": true,
+  "test_app.py::test_dog_details_page": true,
+  "test_app.py::test_add_to_cart": true,
+  "test_app.py::test_remove_from_cart": true
+}

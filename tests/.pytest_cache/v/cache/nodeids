@@ -1,0 +1,8 @@
+[
+  "test_app.py::test_add_to_cart",
+  "test_app.py::test_dog_details_page",
+  "test_app.py::test_dog_not_found",
+  "test_app.py::test_get_dog_by_id",
+  "test_app.py::test_get_dogs",
+  "test_app.py::test_remove_from_cart"
+]

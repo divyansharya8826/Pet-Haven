@@ -84,7 +84,7 @@ document.getElementById('duration').addEventListener('change', (e) => {
     const duration = e.target.value;
     if (duration) {
         const totalCost = provider.hourly_rate * parseInt(duration);
-        document.getElementById('costPreview').innerHTML = `Total: $${totalCost.toLocaleString()}`;
+        document.getElementById('costPreview').innerHTML = `Total: RS.${totalCost.toLocaleString()}`;
     } else {
         document.getElementById('costPreview').innerHTML = '';
     }
