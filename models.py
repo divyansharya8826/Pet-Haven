@@ -110,8 +110,8 @@ class Booking(db.Model):
 
     booking_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey("user.user_id"), nullable=False)
-    booking_date = db.Column(db.DateTime, default=db.func.current_timestamp())
-    duration = db.Column(db.Time, nullable=False)
+    booking_date = db.Column(db.DateTime)
+    duration = db.Column(db.Integer, nullable=False)
     total_cost = db.Column(db.Integer, nullable=False)
 
     booking_details = db.relationship("BookingDetail", backref="booking", lazy=True)

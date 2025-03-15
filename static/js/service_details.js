@@ -45,7 +45,7 @@ function renderServiceDetails() {
     serviceDetails.innerHTML = `
         <p><strong>Provider</strong><br>${provider.name}</p>
         <p><strong>Location</strong><br>${provider.address}</p>
-        <p><strong>Rate</strong><br>$${provider.hourly_rate}/hour</p>
+        <p><strong>Rate</strong><br>Rs.${provider.hourly_rate}/hour</p>
         <p><strong>Experience</strong><br>${provider.experience}</p>
         <p><strong>Description</strong><br>${provider.description}</p>
         <p><strong>Status</strong><br><span class="status-accepted">${provider.status}</span></p>
@@ -69,14 +69,41 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
     
     const date = document.getElementById('date').value;
     const time = document.getElementById('time').value;
-    const duration = document.getElementById('duration').value;
+    const duration = document.getElementById('duration').value[0];
     const totalCost = provider.hourly_rate * parseInt(duration);
 
-    if (date && time && duration) {
-        alert(`Booking Secured!\n\nService: ${provider.service_name}\nProvider: ${provider.name}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} hour${duration > 1 ? 's' : ''}\nTotal Cost: $${totalCost.toLocaleString()}`);
-        document.getElementById('bookingForm').reset();
-        document.getElementById('costPreview').innerHTML = '';
-    }
+    const data = { date, time, duration, totalCost, service_id: provider.service_id };
+
+    console.log("Sending Booking Data:", data);
+
+    fetch("/book-service", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",  // Ensure proper headers
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(data)  // Ensure payload is properly serialized
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            console.error("Server Error:", data.error);
+            alert("Booking Failed: " + data.error);
+        } else {
+            alert(`Booking Secured!\n\nService: ${provider.service_name}\nProvider: ${provider.name}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} hour${duration > 1 ? 's' : ''}\nTotal Cost: Rs.${totalCost.toLocaleString()}`);
+            document.getElementById('bookingForm').reset();
+            document.getElementById('costPreview').innerHTML = '';
+        }
+    })
+    .catch(error => {
+        console.error("Fetch Error:", error);
+        alert("Failed to book your appointment. Please try again!");
+    });
 });
 
 // Real-time Cost Preview
@@ -84,7 +111,7 @@ document.getElementById('duration').addEventListener('change', (e) => {
     const duration = e.target.value;
     if (duration) {
         const totalCost = provider.hourly_rate * parseInt(duration);
-        document.getElementById('costPreview').innerHTML = `Total: RS.${totalCost.toLocaleString()}`;
+        document.getElementById('costPreview').innerHTML = `Total: Rs.${totalCost.toLocaleString()}`;
     } else {
         document.getElementById('costPreview').innerHTML = '';
     }

@@ -4,7 +4,7 @@ from models import app, db, Dogs, Cart, CartItem, Order, OrderDetail, Service, S
 import uuid
 from flask import render_template, jsonify
 from models import ServiceProvider
-from datetime import datetime, timedelta
+from datetime import datetime
 from werkzeug.utils import secure_filename
 
 #************************************* secret key for the session *******************************************
@@ -482,6 +482,7 @@ def service_details(service_id):
     provider = ServiceProvider.query.get_or_404(service_id)
     # Convert the provider object to a dictionary
     provider_dict = {
+        "service_id": provider.service_id,
         "name": provider.name,
         "service_name": provider.service_name,
         "address": provider.address,
@@ -509,23 +510,24 @@ def book_service():
     date = data.get("date")
     time = data.get("time")
     duration = int(data.get("duration"))
+    total_cost = int(data.get("totalCost"))
     
     # Ensure valid inputs
     if not service_id or not date or not time or not duration:
+        print(service_id, date, time, duration)
         return jsonify({"error": "Missing booking details"}), 400
 
     # Convert date and time to a proper format
     booking_datetime = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+    print(booking_datetime)
 
-    # Calculate total cost
     provider = ServiceProvider.query.get_or_404(service_id)
-    total_cost = provider.hourly_rate * duration
 
     # Store Booking in `booking` Table
     booking = Booking(
         user_id=user_id,
         booking_date=booking_datetime,
-        duration=timedelta(hours=duration),
+        duration=duration,
         total_cost=total_cost
     )
     db.session.add(booking)
@@ -534,6 +536,8 @@ def book_service():
     # Store Booking Details in `booking_detail` Table
     booking_detail = BookingDetail(
         booking_id=booking.booking_id,
+        service_id=service_id,
+        user_id=user_id,
         service_name=provider.service_name,
         service_price=total_cost
     )
