@@ -6,7 +6,7 @@
     <title>Pet Haven - Cart</title>
     <link rel="stylesheet" href="static/css/base.css">
     <link rel="stylesheet" href="static/css/styles.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="static/css/dog.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -29,7 +29,8 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item"><i class="fas fa-home"></i> Dashboard</li>
-            <li class="nav-item active"><a href="/"> <i class="fas fa-images"></i> Dog Gallery</a></li>
+            <li class="nav-item"><a href="/"> <i class="fas fa-images"></i> Dog Gallery</a></li>
+            <li class="nav-item active"><a href="/cart"> <i class="fas fa-shopping-cart"></i> Shopping Cart</a></li>
             <li class="nav-item"><a href="/services"> <i class="fas fa-concierge-bell"></i> Services </a></li>
             <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
         </ul>
@@ -39,7 +40,7 @@
       <div class="main-content" id="mainContent">
         <!-- Navbar -->
         <div class="navbar" id="navbar">
-            <h2>Dog Gallery</h2>
+            <h2>Shopping Cart</h2>
             <div class="nav-right">
                 <div class="notification">
                     <i class="fas fa-bell fa-2x"></i>
@@ -53,10 +54,10 @@
         </div>
 
         <div class="cart-container">
-            <h2>Your Cart (<span id="cart-count">{{ cart|length }}</span>)</h2>
+            <h2>Your Cart (<span id="cart-count">{{ cart|length }}</span> items)</h2>
             
             {% if cart %}
-                <div class="cart-items">
+                <div id="cart-list" class="cart-items">
                     {% for item in cart %}
                         <div class="cart-item" data-id="{{ item.id }}">
                             <img src="{{ item.image }}" alt="{{ item.name }}">
@@ -66,79 +67,65 @@
                                 <p>Age: {{ item.age }}</p>
                                 <p>Price: Rs.{{ item.price }}</p>
                             </div>
-                            <button class="remove-from-cart" data-id="{{ item.id }}">Remove</button>
+                            <button class="remove-from-cart" data-id="{{ item.id }}" data-name="{{ item.name }}" data-image="{{ item.image }}">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
                         </div>
                     {% endfor %}
                 </div>
 
                 <div class="cart-summary">
                     <h3>Total: Rs. <span id="total-price">{{ cart | sum(attribute='price') }}</span></h3>
-                    <a id="checkout" href="/order">Proceed to Checkout</a>
+                    <a id="checkout" href="/order" class="checkout-btn">
+                        <i class="fas fa-shopping-bag"></i> Proceed to Checkout
+                    </a>
                 </div>
             {% else %}
-                <div class="empty-cart">
-                    <p>Your cart is empty.</p>
-                    <a href="{{ url_for('home') }}">Browse Dogs</a>
+                <div id="cart-list" class="empty-cart">
+                    <div class="empty-cart-content">
+                        <i class="fas fa-shopping-cart fa-4x"></i>
+                        <p>Your cart is empty.</p>
+                        <a href="{{ url_for('home') }}" class="browse-btn">
+                            <i class="fas fa-paw"></i> Browse Dogs
+                        </a>
+                    </div>
                 </div>
             {% endif %}
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Confirmation Modal for Remove -->
+    <div id="removeConfirmModal" class="cart-popup">
+        <div class="cart-popup-content">
+            <span class="cart-popup-close">&times;</span>
+            <div class="cart-popup-header">
+                <i class="fas fa-trash"></i>
+                <h3>Remove from Cart?</h3>
+            </div>
+            <div class="cart-popup-body">
+                <div class="cart-popup-item">
+                    <img id="removeItemImage" src="" alt="Dog Image">
+                    <div class="cart-popup-item-details">
+                        <h4 id="removeItemName"></h4>
+                        <p>Are you sure you want to remove this dog from your cart?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-popup-footer">
+                <button id="cancelRemove" class="continue-shopping">Cancel</button>
+                <button id="confirmRemove" class="remove-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/script.js"></script>
     <script>
-        $(document).ready(function() {
-            // Add to Cart Functionality
-            $(".add-to-cart").click(function() {
-                let dogId = $(this).data("id");
-    
-                $.ajax({
-                    url: "/cart/add",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ dog_id: dogId }),
-                    success: function(response) {
-                        alert("Dog added to cart!");
-                        $("#cart-count").text(response.cart_count);  // Update cart count dynamically
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error adding to cart:", error);
-                        alert("Failed to add dog to cart. Try again!");
-                    }
-                });
-            });
-
-            // Remove from Cart Functionality
-            $(".remove-from-cart").click(function() {
-                let dogId = $(this).data("id");
-
-                $.ajax({
-                    url: "/cart/remove",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ dog_id: dogId }),
-                    success: function(response) {
-                        alert("Dog removed from cart!");
-
-                        // Update cart count dynamically
-                        $("#cart-count").text(response.cart_count);
-
-                        // Remove item from UI without reloading
-                        $(".cart-item[data-id='" + dogId + "']").remove();
-
-                        // If cart is empty, show "Your cart is empty"
-                        if ($(".cart-item").length === 0) {
-                            $(".cart-items").html("<p>Your cart is empty.</p>");
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error removing from cart:", error);
-                        alert("Failed to remove dog from cart. Try again!");
-                    }
-                });
-            });
+        // Run after the page is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attach event listeners to all remove buttons
+            attachRemoveListeners();
         });
     </script>
-    <script src="static/js/script.js"></script>
 </body>
 
 </html>
