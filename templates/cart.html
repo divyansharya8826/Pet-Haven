@@ -74,16 +74,14 @@
                                     <p class="item-price">Rs.{{ item.total_cost }}</p>
                                 {% endif %}
                             </div>
-                            <button class="remove-from-cart" data-id="{{ item.id }}">Remove</button>
+                            <button class="remove-from-cart" data-id="{{ item.id }}" data-type="{{ item.type }}">Remove</button>
                         </div>
                     {% endfor %}
                 </div>
 
                 <div class="cart-summary">
                     <h3>Total: Rs. <span id="total-price">{{ total_price }}</span></h3>
-                    <a id="checkout" href="/order" class="checkout-btn">
-                        <i class="fas fa-shopping-bag"></i> Proceed to Checkout
-                    </a>
+                    <a id="checkout" href="/order">Proceed to Checkout</a>
                 </div>
             {% else %}
                 <div class="empty-cart">
@@ -136,11 +134,6 @@
                     }
                 });
             });
-        });
-        // Run after the page is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Attach event listeners to all remove buttons
-            attachRemoveListeners();
         });
     </script>
     <script src="static/js/script.js"></script>
