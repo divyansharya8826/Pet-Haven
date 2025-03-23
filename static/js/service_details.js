@@ -17,34 +17,81 @@ function toggleSidebar() {
 	}
 }
 
-// Function to handle booking from service provider page
-function bookService(serviceId) {
-    window.location.href = `/service-details/${serviceId}`;
+const providerDataElement = document.getElementById('provider-data');
+const provider = JSON.parse(providerDataElement.textContent);
+
+// Review Data (still hardcoded for now)
+const reviews = [
+    {
+        text: "An absolutely luxurious experience for my pup! The attention to detail is unmatched.",
+        reviewer: "Sarah L.",
+        rating: 5
+    },
+    {
+        text: "John's expertise shines through. My dog has never looked better!",
+        reviewer: "Mike T.",
+        rating: 4.5
+    },
+    {
+        text: "Premium service worth every penny. Exceptional quality and care.",
+        reviewer: "Emma R.",
+        rating: 4
+    }
+];
+
+// Render Service Details
+function renderServiceDetails() {
+    const serviceDetails = document.getElementById('serviceDetails');
+    serviceDetails.innerHTML = `
+        <p><strong>Provider</strong><br>${provider.name}</p>
+        <p><strong>Location</strong><br>${provider.address}</p>
+        <p><strong>Rate</strong><br>Rs.${provider.hourly_rate}/hour</p>
+        <p><strong>Experience</strong><br>${provider.experience}</p>
+        <p><strong>Description</strong><br>${provider.description}</p>
+        <p><strong>Status</strong><br><span class="status-accepted">${provider.status}</span></p>
+    `;
 }
 
-const providerDataElement = document.getElementById('provider-data');
-// Only try to parse provider data if the element exists (for service details page)
-if (providerDataElement) {
-    const provider = JSON.parse(providerDataElement.textContent);
+// Render Reviews
+function renderReviews() {
+    const reviewList = document.getElementById('reviewList');
+    reviewList.innerHTML = reviews.map(review => `
+        <div class="review">
+            <p>"${review.text}"</p>
+            <p class="reviewer">- ${review.reviewer}</p>
+        </div>
+    `).join('');
+}
+
+// Handle Form Submission and Cost Preview
+document.getElementById('bookingForm').addEventListener('submit', (e) => {
+    e.preventDefault();
     
-    // Review Data (still hardcoded for now)
-    const reviews = [
-        {
-            text: "An absolutely luxurious experience for my pup! The attention to detail is unmatched.",
-            reviewer: "Sarah L.",
-            rating: 5
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const duration = document.getElementById('duration').value[0];
+    const totalCost = provider.hourly_rate * parseInt(duration);
+
+    const data = { date, time, duration, totalCost, service_id: provider.service_id };
+
+    console.log("Sending Booking Data:", data);
+
+    fetch("/book-service", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",  // Ensure proper headers
+            "Accept": "application/json"
         },
-        {
-            text: "John's expertise shines through. My dog has never looked better!",
-            reviewer: "Mike T.",
-            rating: 4.5
-        },
-        {
-            text: "Premium service worth every penny. Exceptional quality and care.",
-            reviewer: "Emma R.",
-            rating: 4
+        body: JSON.stringify(data)  // Ensure payload is properly serialized
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of d019a7c (Minor Changes to CartCheckout , Service details , Service Provider UI (added minimal UI to Popup's))
         return response.json();
     })
     .then(data => {
@@ -55,14 +102,18 @@ if (providerDataElement) {
             alert(`Booking Secured!\n\nService: ${provider.service_name}\nProvider: ${provider.name}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} hour${duration > 1 ? 's' : ''}\nTotal Cost: Rs.${totalCost.toLocaleString()}`);
             document.getElementById('bookingForm').reset();
             document.getElementById('costPreview').innerHTML = '';
+<<<<<<< HEAD
 
             // **Add booking to cart**
             addBookingToCart(data.booking_id);  // Pass the newly created booking ID
+=======
+>>>>>>> parent of d019a7c (Minor Changes to CartCheckout , Service details , Service Provider UI (added minimal UI to Popup's))
         }
     })
     .catch(error => {
         console.error("Fetch Error:", error);
         alert("Failed to book your appointment. Please try again!");
+<<<<<<< HEAD
     });
 });
 
@@ -296,5 +347,28 @@ document.getElementById('duration').addEventListener('change', (e) => {
         console.log('DOM fully loaded'); 
         renderServiceDetails();
         renderReviews();
+=======
+>>>>>>> parent of d019a7c (Minor Changes to CartCheckout , Service details , Service Provider UI (added minimal UI to Popup's))
     });
-}
+});
+
+// Real-time Cost Preview
+document.getElementById('duration').addEventListener('change', (e) => {
+    const duration = e.target.value;
+    if (duration) {
+        const totalCost = provider.hourly_rate * parseInt(duration);
+        document.getElementById('costPreview').innerHTML = `Total: Rs.${totalCost.toLocaleString()}`;
+    } else {
+        document.getElementById('costPreview').innerHTML = '';
+    }
+});
+
+// Set minimum date to today
+document.getElementById('date').setAttribute('min', new Date().toISOString().split('T')[0]);
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded'); 
+    renderServiceDetails();
+    renderReviews();
+});

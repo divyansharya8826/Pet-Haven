@@ -378,6 +378,9 @@ def remove_from_cart():
     cart.total_amount = total_amount  # Update cart total amount
     db.session.commit()
 
+    db.session.delete(cart)
+    db.session.commit()
+
     return jsonify({
         "message": "Item removed from cart!",
         "cart_count": len(cart.cart_items),
