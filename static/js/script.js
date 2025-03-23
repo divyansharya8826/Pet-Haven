@@ -103,22 +103,50 @@ function displayDogs(dogs) {
 function displayDogDetails(dog) {
   let detailsSection = document.getElementById("dogDetails");
   detailsSection.innerHTML = `
-      <div class="dog-info">
-          <img src="${dog.image}" alt="${dog.name}" />
-          <h2>${dog.name}</h2>
-          <p><strong>Breed:</strong> ${dog.breed}</p>
-          <p><strong>Age:</strong> ${dog.age}</p>
-          <p><strong>Price:</strong> Rs.${dog.price}</p>
-          <p><strong>Vaccinated:</strong> ${dog.vaccinated}</p>
-          <p><strong>Description:</strong> ${dog.description}</p>
-      </div>
+    <div class="dog-info">
+      <img src="${dog.image}" alt="${dog.name}" />
+      <h2>${dog.name}</h2>
+      <p><strong>Breed:</strong> ${dog.breed}</p>
+      <p><strong>Age:</strong> ${dog.age}</p>
+      <p><strong>Price:</strong> Rs.${dog.price}</p>
+      <p><strong>Vaccinated:</strong> ${dog.vaccinated}</p>
+      <p><strong>Description:</strong> ${dog.description}</p>
+      <button class="add-to-cart modal-add-btn" data-id="${dog.id}">
+        <i class="fas fa-cart-plus"></i> Add to Cart
+      </button>
+    </div>
   `;
+  
   let modal = document.getElementById("dogDetailsModal");
-  modal.style.display = "block"; // Show modal
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  modal.style.display = "flex"; // Use flex to center the modal
+  
+  // Attach event listener to the Add to Cart button in the modal
+  const addBtn = modal.querySelector('.modal-add-btn');
+  if (addBtn) {
+    addBtn.addEventListener('click', function() {
+      let dogId = this.getAttribute("data-id");
+      
+      fetch("/cart/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dog_id: dogId })
+      })
+      .then(response => response.json())
+      .then(data => {
+          closeModal();
+          showAddToCartPopup(dog.name, dog.image, dog.breed, dog.price, data.message);
+          updateCartCount();
+      })
+      .catch(error => console.error("Error adding to cart:", error));
+    });
+  }
 }
+
 function closeModal() {
   let modal = document.getElementById("dogDetailsModal");
-  modal.style.display = "none"; // Hide modal
+  modal.style.display = "none";
+  document.body.style.overflow = ''; // Restore scrolling
 }
 
 // Attach close event to the "X" button
@@ -242,6 +270,13 @@ function attachCartListeners() {
     document.querySelectorAll(".add-to-cart").forEach(button => {
         button.addEventListener("click", function () {
             let dogId = this.getAttribute("data-id");
+            
+            // Find the dog data to display in popup
+            const dogCard = this.closest('.dog-card');
+            const dogName = dogCard.querySelector('h3').textContent;
+            const dogImage = dogCard.querySelector('img').src;
+            const dogBreed = dogCard.querySelector('p:nth-of-type(1)').textContent.replace('Breed: ', '');
+            const dogPrice = dogCard.querySelector('p:nth-of-type(3)').textContent.replace('Price: Rs.', '');
 
             fetch("/cart/add", {
                 method: "POST",
@@ -250,33 +285,239 @@ function attachCartListeners() {
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                // Show custom popup instead of alert
+                showAddToCartPopup(dogName, dogImage, dogBreed, dogPrice, data.message);
                 updateCartCount();  // Call the function to update cart count
             })
             .catch(error => console.error("Error adding to cart:", error));
         });
     });
 }
+
+// Function to show Add to Cart popup
+function showAddToCartPopup(dogName, dogImage, dogBreed, dogPrice, message) {
+    // Create popup elements if they don't exist
+    if (!document.getElementById('addToCartPopup')) {
+        const popupHTML = `
+            <div id="addToCartPopup" class="cart-popup">
+                <div class="cart-popup-content">
+                    <span class="cart-popup-close">&times;</span>
+                    <div class="cart-popup-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Added to Cart!</h3>
+                    </div>
+                    <div class="cart-popup-body">
+                        <div class="cart-popup-item">
+                            <img id="popupDogImage" src="" alt="Dog Image">
+                            <div class="cart-popup-item-details">
+                                <h4 id="popupDogName"></h4>
+                                <p id="popupDogBreed"></p>
+                                <p id="popupDogPrice"></p>
+                            </div>
+                        </div>
+                        <p id="popupMessage" class="cart-popup-message"></p>
+                    </div>
+                    <div class="cart-popup-footer">
+                        <button id="continueShopping" class="continue-shopping">Continue Shopping</button>
+                        <button id="viewCart" class="view-cart">View Cart</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const popupContainer = document.createElement('div');
+        popupContainer.innerHTML = popupHTML;
+        document.body.appendChild(popupContainer.firstElementChild);
+        
+        // Add event listeners
+        document.querySelector('.cart-popup-close').addEventListener('click', closeCartPopup);
+        document.getElementById('continueShopping').addEventListener('click', closeCartPopup);
+        document.getElementById('viewCart').addEventListener('click', () => {
+            window.location.href = '/cart';
+        });
+    }
+    
+    // Update popup with dog details
+    document.getElementById('popupDogImage').src = dogImage;
+    document.getElementById('popupDogName').textContent = dogName;
+    document.getElementById('popupDogBreed').textContent = dogBreed;
+    document.getElementById('popupDogPrice').textContent = `Rs.${dogPrice}`;
+    document.getElementById('popupMessage').textContent = message;
+    
+    // Show popup
+    const popup = document.getElementById('addToCartPopup');
+    popup.style.display = 'flex';
+    
+    // Auto close after 5 seconds
+    setTimeout(closeCartPopup, 5000);
+}
+
+function closeCartPopup() {
+    const popup = document.getElementById('addToCartPopup');
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
+
 /************************************** function for remove from cart feature ********************************/
 function attachRemoveListeners() {
     document.querySelectorAll(".remove-from-cart").forEach(button => {
         button.addEventListener("click", function () {
             let dogId = this.getAttribute("data-id");
-
-            fetch("/cart/remove", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ dog_id: dogId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                updateCartCount();  // Update cart count
-                removeDogFromUI(dogId);  // Remove dog from UI without reloading
-            })
-            .catch(error => console.error("Error removing from cart:", error));
+            let dogName = this.getAttribute("data-name");
+            let dogImage = this.getAttribute("data-image");
+            
+            // Show confirmation popup instead of immediately removing
+            showRemoveConfirmation(dogId, dogName, dogImage);
         });
     });
+    
+    // Add event listeners to the confirmation modal
+    const confirmModal = document.getElementById('removeConfirmModal');
+    if (confirmModal) {
+        document.querySelector('#cancelRemove').addEventListener('click', closeRemoveConfirmation);
+        document.querySelector('.cart-popup-close').addEventListener('click', closeRemoveConfirmation);
+        
+        // Handle the confirmation button
+        document.querySelector('#confirmRemove').addEventListener('click', function() {
+            const dogId = this.getAttribute('data-dog-id');
+            removeDogFromCart(dogId);
+        });
+    }
+}
+
+// Function to show removal confirmation popup
+function showRemoveConfirmation(dogId, dogName, dogImage) {
+    const modal = document.getElementById('removeConfirmModal');
+    if (!modal) return;
+    
+    // Update the modal content
+    document.getElementById('removeItemName').textContent = dogName;
+    document.getElementById('removeItemImage').src = dogImage;
+    
+    // Store the dog ID on the confirm button
+    document.getElementById('confirmRemove').setAttribute('data-dog-id', dogId);
+    
+    // Show the modal
+    modal.style.display = 'flex';
+}
+
+// Function to close the removal confirmation
+function closeRemoveConfirmation() {
+    const modal = document.getElementById('removeConfirmModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Function to actually remove the dog from cart
+function removeDogFromCart(dogId) {
+    fetch("/cart/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dog_id: dogId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Close the confirmation popup
+        closeRemoveConfirmation();
+        
+        // Show success message with a popup instead of alert
+        showRemoveSuccessPopup(data.message);
+        
+        // Update cart count
+        updateCartCount();
+        
+        // Remove dog from UI without reloading
+        removeDogFromUI(dogId);
+    })
+    .catch(error => {
+        console.error("Error removing from cart:", error);
+        // Show error message
+        showRemoveErrorPopup("Failed to remove dog from cart. Try again!");
+    });
+}
+
+// Function to show success message after removing
+function showRemoveSuccessPopup(message) {
+    // Create popup if it doesn't exist
+    if (!document.getElementById('removeSuccessPopup')) {
+        const popupHTML = `
+            <div id="removeSuccessPopup" class="cart-popup">
+                <div class="cart-popup-content">
+                    <span class="cart-popup-close">&times;</span>
+                    <div class="cart-popup-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Item Removed</h3>
+                    </div>
+                    <div class="cart-popup-body">
+                        <p id="removeSuccessMessage" class="cart-popup-message"></p>
+                    </div>
+                    <div class="cart-popup-footer">
+                        <button id="continueShoppingAfterRemove" class="continue-shopping">Continue Shopping</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const popupContainer = document.createElement('div');
+        popupContainer.innerHTML = popupHTML;
+        document.body.appendChild(popupContainer.firstElementChild);
+        
+        // Add event listeners
+        document.querySelector('#removeSuccessPopup .cart-popup-close').addEventListener('click', 
+            () => document.getElementById('removeSuccessPopup').style.display = 'none');
+        document.getElementById('continueShoppingAfterRemove').addEventListener('click', 
+            () => document.getElementById('removeSuccessPopup').style.display = 'none');
+    }
+    
+    // Update message and show popup
+    document.getElementById('removeSuccessMessage').textContent = message;
+    document.getElementById('removeSuccessPopup').style.display = 'flex';
+    
+    // Auto close after 3 seconds
+    setTimeout(() => {
+        const popup = document.getElementById('removeSuccessPopup');
+        if (popup) popup.style.display = 'none';
+    }, 3000);
+}
+
+// Function to show error message
+function showRemoveErrorPopup(message) {
+    // Create popup if it doesn't exist
+    if (!document.getElementById('removeErrorPopup')) {
+        const popupHTML = `
+            <div id="removeErrorPopup" class="cart-popup">
+                <div class="cart-popup-content">
+                    <span class="cart-popup-close">&times;</span>
+                    <div class="cart-popup-header">
+                        <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i>
+                        <h3>Error</h3>
+                    </div>
+                    <div class="cart-popup-body">
+                        <p id="removeErrorMessage" class="cart-popup-message" style="color: #dc3545;"></p>
+                    </div>
+                    <div class="cart-popup-footer">
+                        <button id="tryAgain" class="continue-shopping">Try Again</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const popupContainer = document.createElement('div');
+        popupContainer.innerHTML = popupHTML;
+        document.body.appendChild(popupContainer.firstElementChild);
+        
+        // Add event listeners
+        document.querySelector('#removeErrorPopup .cart-popup-close').addEventListener('click', 
+            () => document.getElementById('removeErrorPopup').style.display = 'none');
+        document.getElementById('tryAgain').addEventListener('click', 
+            () => document.getElementById('removeErrorPopup').style.display = 'none');
+    }
+    
+    // Update message and show popup
+    document.getElementById('removeErrorMessage').textContent = message;
+    document.getElementById('removeErrorPopup').style.display = 'flex';
 }
 
 /*********************************** function to remove item from UI without reloading **********************/
@@ -286,8 +527,57 @@ function removeDogFromUI(dogId) {
         cartItem.remove();
     }
 
+    // Update cart count in the header
+    const cartCountElements = document.querySelectorAll("#cart-count");
+    cartCountElements.forEach(element => {
+        const currentCount = parseInt(element.textContent || "0");
+        if (currentCount > 0) {
+            element.textContent = currentCount - 1;
+        } else {
+            element.textContent = "0";
+        }
+    });
+
     // If cart is empty after removal, show "empty cart" message
     if (document.querySelectorAll(".cart-item").length === 0) {
-        document.getElementById("cart-list").innerHTML = "<p>Your cart is empty.</p>";
+        const cartList = document.getElementById("cart-list");
+        if (cartList) {
+            cartList.className = "empty-cart";
+            cartList.innerHTML = `
+                <div class="empty-cart-content">
+                    <i class="fas fa-shopping-cart fa-4x"></i>
+                    <p>Your cart is empty.</p>
+                    <a href="/" class="browse-btn">
+                        <i class="fas fa-paw"></i> Browse Dogs
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Hide the cart summary section
+        const cartSummary = document.querySelector(".cart-summary");
+        if (cartSummary) {
+            cartSummary.style.display = "none";
+        }
+    } else {
+        // Update total price
+        updateCartTotal();
+    }
+}
+
+// Function to update cart total price
+function updateCartTotal() {
+    const cartItems = document.querySelectorAll(".cart-item");
+    let total = 0;
+    
+    cartItems.forEach(item => {
+        const priceText = item.querySelector(".item-details p:nth-of-type(3)").textContent;
+        const price = parseInt(priceText.replace(/[^0-9]/g, ""));
+        total += price;
+    });
+    
+    const totalPriceElement = document.getElementById("total-price");
+    if (totalPriceElement) {
+        totalPriceElement.textContent = total;
     }
 }

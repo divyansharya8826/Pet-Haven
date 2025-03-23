@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Services</title>    
     <link rel="stylesheet" href="static/css/base.css">
-    <link rel="stylesheet" href="static/css/Dashboard.css">
+    <link rel="stylesheet" href="static/css/dashboard.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -38,7 +38,7 @@
     <div class="main-content" id="mainContent">
         <!-- Navbar -->
         <div class="navbar" id="navbar">
-            <h2>Dog Gallery</h2>
+            <h2>Pet Services</h2>
             <div class="nav-right">
                 <div class="notification">
                     <i class="fas fa-bell fa-2x"></i>
@@ -51,21 +51,34 @@
             </div>
         </div>
         <div class="container">
-            <div class="header">
-                <h2>Our Dog Services</h2>
-                <p>Comprehensive care services designed to keep your furry friend happy, healthy, and thriving</p>
+            <div class="services-header">
+                <div class="header-content">
+                    <h2>Our Pet Services</h2>
+                    <p>Professional care services for your furry companions</p>
+                </div>
+                <div class="header-image">
+                    <i class="fas fa-paw"></i>
+                </div>
             </div>
 
-            <div class="tabs">
-                <button class="tab active" data-category="all">All</button>
-                <button class="tab" data-category="grooming">Grooming</button>
-                <button class="tab" data-category="therapies">Therapy</button>
-                <button class="tab" data-category="health">Health</button>
-                <button class="tab" data-category="training">Training</button>
-                <button class="tab" data-category="spa">Spa</button>
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab active" data-category="all">All Services</button>
+                    <button class="tab" data-category="grooming"><i class="fas fa-cut"></i> Grooming</button>
+                    <button class="tab" data-category="therapies"><i class="fas fa-hand-holding-heart"></i> Therapy</button>
+                    <button class="tab" data-category="health"><i class="fas fa-heartbeat"></i> Health</button>
+                    <button class="tab" data-category="training"><i class="fas fa-graduation-cap"></i> Training</button>
+                    <button class="tab" data-category="spa"><i class="fas fa-spa"></i> Spa</button>
+                </div>
             </div>
 
             <div class="services-grid" id="servicesGrid"></div>
+            
+            <div class="view-providers">
+                <a href="/service-providers" class="view-all-btn">
+                    <i class="fas fa-users"></i> View All Service Providers
+                </a>
+            </div>
         </div>
     </div>
 
