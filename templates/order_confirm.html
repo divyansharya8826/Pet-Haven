@@ -82,18 +82,26 @@
               {% for item in cart %}
                 <div class="item" data-id="{{ item.id }}">
                   <div class="item-info">
-                    <p class="item-name">{{ item.name }}</p>
-                    <p class="item-breed">Breed: {{ item.breed }}</p>
-                    <p class="item-quantity">x1</p>
+                    {% if item.type == "dog" %}
+                      <p class="item-name">{{ item.name }}</p>
+                      <p class="item-breed">Breed: {{ item.breed }}</p>
+                      <p class="item-quantity">x1</p>
+                      <p class="item-price">Rs.{{ item.price }}</p>
+                    {% else %}
+                      <p class="item-name">Service: {{ item.service_name }}</p>
+                      <p class="item-provider">Provider: {{ item.provider_id }}</p>
+                      <p class="item-date">Date: {{ item.date }}</p>
+                      <p class="item-duration">Duration: {{ item.duration }} Hours</p>
+                      <p class="item-price">Rs.{{ item.total_cost }}</p>
+                    {% endif %}
                   </div>
-                  <p class="item-price">Rs.{{ item.price }}</p>
                 </div>
               {% endfor %}
             </div>
             <div class="order-pricing">
               <div class="price-row">
                 <span>Subtotal</span>
-                <span>Rs.{{ cart | sum(attribute='price') }}</span>
+                <span>Rs.{{ total_price }}</span>
               </div>
               <div class="price-row">
                 <span>Shipment cost</span>
@@ -101,7 +109,7 @@
               </div>
               <div class="price-row grand-total">
                 <span>Grand total</span>
-                <span>Rs.{{ cart | sum(attribute='price') }}</span>
+                <span>Rs.{{ total_price }}</span>
               </div>
             </div>
           {% endif %}

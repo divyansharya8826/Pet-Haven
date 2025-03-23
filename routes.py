@@ -195,22 +195,44 @@ def cart_page():
     cart = Cart.query.filter_by(user_id=user_id).first()
 
     if not cart or not cart.cart_items:
-        return render_template("cart.html", cart=[])
+        return render_template("cart.html", cart=[], total_price=0)
 
-    # Fetch cart items
-    cart_items = [
+    # Fetch Dog Items in Cart
+    cart_dogs = [
         {
             "id": item.dog.dog_id,
             "name": item.dog.name,
             "breed": item.dog.breed,
             "age": item.dog.age,
             "price": item.dog.price,
-            "image": item.dog.image
+            "image": item.dog.image,
+            "type": "dog"
         }
-        for item in cart.cart_items
-    ]if cart and cart.cart_items else []
+        for item in cart.cart_items if item.dog
+    ]
 
-    return render_template("cart.html", cart=cart_items)
+    # Fetch Booking Items in Cart
+    cart_bookings = [
+        {
+            "id": item.booking.booking_id,
+            "service_name": item.booking.booking_details[0].service_name if item.booking.booking_details else "Unknown Service",  # Assuming Booking model has service_name
+            "provider_id": item.booking.booking_details[0].service_id,     # Assuming provider details exist
+            "date": item.booking.booking_date.strftime("%Y-%m-%d"),
+            "duration": str(item.booking.duration),  
+            "total_cost": item.booking.total_cost,
+            "image": "static/images/booking.png",  # Placeholder image
+            "type": "booking"
+        }
+        for item in cart.cart_items if item.booking
+    ]
+
+    print("Cart Dogs:", cart_dogs)
+    print("Cart Bookings:", cart_bookings)
+    # Combine dogs & bookings in one list
+    cart_items = cart_dogs + cart_bookings
+    total_price = sum(item["price"] if item["type"] == "dog" else item["total_cost"] for item in cart_items)
+
+    return render_template("cart.html", cart=cart_items, total_price=total_price)
 
 #**************************************** route for cart api ************************************************
 @app.route("/api/cart", methods=["GET"])
@@ -225,18 +247,35 @@ def get_cart_items():
     if not cart or not cart.cart_items:
         return jsonify({"cart": []})  # Return empty list if no cart items
 
-    # Fetch cart items along with dog details
-    cart_items = [
+    # Fetch Dog Items in Order
+    cart_dogs = [
         {
             "id": item.dog.dog_id,
             "name": item.dog.name,
             "breed": item.dog.breed,
-            "age": item.dog.age,
             "price": item.dog.price,
-            "image": item.dog.image
+            "image": item.dog.image,
+            "type": "dog"
         }
-        for item in cart.cart_items
+        for item in cart.cart_items if item.dog
     ]
+
+    # Fetch Booking Items in Order
+    cart_bookings = [
+        {
+            "id": item.booking.booking_id,
+            "service_name": item.booking.booking_details[0].service_name if item.booking.booking_details else "Unknown Service",
+            "provider_id": item.booking.booking_details[0].service_id,
+            "date": item.booking.booking_date.strftime("%Y-%m-%d"),
+            "duration": item.booking.duration,
+            "total_cost": item.booking.total_cost,
+            "image": "static/images/booking.png",
+            "type": "booking"
+        }
+        for item in cart.cart_items if item.booking
+    ]
+
+    cart_items = cart_dogs + cart_bookings
 
     return jsonify({"cart": cart_items})
 
@@ -249,8 +288,9 @@ def add_to_cart():
     data = request.get_json()
     dog_id = data.get("dog_id")
     user_id = session["user_id"]  # Fetch user_id from session
+    booking_id  = data.get("booking_id")
 
-    if not dog_id:
+    if not dog_id and not booking_id:
         return jsonify({"error": "Invalid request"}), 400
 
     # Check if the user already has a cart
@@ -260,17 +300,29 @@ def add_to_cart():
         db.session.add(cart)
         db.session.commit()
 
-    # Check if the dog is already in the cart
-    cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
-    if cart_item:
-        return jsonify({"message": "Dog already in cart!", "cart_count": len(cart.cart_items)})
+    if dog_id:
+        # Check if the dog is already in the cart
+        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
+        if cart_item:
+            return jsonify({"message": "Dog already in cart!", "cart_count": len(cart.cart_items)})
 
-    # Add dog to cart
-    cart_item = CartItem(cart_id=cart.cart_id, dog_id=dog_id)
-    db.session.add(cart_item)
+        # Add dog to cart
+        cart_item = CartItem(cart_id=cart.cart_id, dog_id=dog_id)
+        db.session.add(cart_item)
+
+    elif booking_id:
+        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, booking_id=booking_id).first()
+        if cart_item:
+            return jsonify({"message": "Booking already in cart!", "cart_count": len(cart.cart_items)})
+        cart_item = CartItem(cart_id=cart.cart_id, booking_id=booking_id)
+        db.session.add(cart_item)
+    
     db.session.commit()
 
-    return jsonify({"message": "Dog added successfully!", "cart_count": len(cart.cart_items)})
+    if dog_id:
+        return jsonify({"message": "Dog added successfully!", "cart_count": len(cart.cart_items)})
+    elif booking_id:
+        return jsonify({"message": "Booking added successfully!", "cart_count": len(cart.cart_items)})
 
 #************************************ api for updating cart count ******************************************
 @app.route("/api/cart_count", methods=["GET"])
@@ -303,15 +355,26 @@ def remove_from_cart():
     cart = Cart.query.filter_by(user_id=user_id).first()
     if not cart:
         return jsonify({"error": "Cart not found"}), 404
+    
+    # Remove Dog from Cart
+    if "dog_id" in data:
+        dog_id = data["dog_id"]
+        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
 
-    # Find the cart item to remove
-    cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
+    # Remove Booking from Cart
+    elif "booking_id" in data:
+        booking_id = data["booking_id"]
+        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, booking_id=booking_id).first()
+
+    else:
+        return jsonify({"error": "Invalid request"}), 400
+
     if cart_item:
         db.session.delete(cart_item)
         db.session.commit()
     
     # Recalculate total amount
-    total_amount = sum(item.dog.price for item in cart.cart_items)
+    total_amount = sum(item["price"] if item["type"] == "dog" else item["total_cost"] for item in cart_items)
     cart.total_amount = total_amount  # Update cart total amount
     db.session.commit()
 
@@ -319,7 +382,7 @@ def remove_from_cart():
     db.session.commit()
 
     return jsonify({
-        "message": "Dog removed from cart!",
+        "message": "Item removed from cart!",
         "cart_count": len(cart.cart_items),
         "total_amount": total_amount
     })
@@ -339,21 +402,38 @@ def order_summary():
     if not cart or not cart.cart_items:
         flash("Your cart is empty!", "warning")
         return redirect(url_for("cart_page"))  # Redirect to cart page if empty
-
-    # Get cart items safely
-    cart_items = [
+    
+    # Fetch Dog Items in Order
+    cart_dogs = [
         {
-            "id": item.dog.dog_id if item.dog else None,
-            "name": item.dog.name if item.dog else "Unknown",
-            "breed": item.dog.breed if item.dog else "N/A",
-            "age": item.dog.age if item.dog else "N/A",
-            "price": item.dog.price if item.dog else 0,
-            "image": item.dog.image if item.dog else "static/images/default.jpg"
+            "id": item.dog.dog_id,
+            "name": item.dog.name,
+            "breed": item.dog.breed,
+            "price": item.dog.price,
+            "image": item.dog.image,
+            "type": "dog"
         }
-        for item in cart.cart_items if item.dog  # Ensure `dog` exists
+        for item in cart.cart_items if item.dog
     ]
 
-    total_amount = sum(item["price"] for item in cart_items)  # Calculate total dynamically
+    # Fetch Booking Items in Order
+    cart_bookings = [
+        {
+            "id": item.booking.booking_id,
+            "service_name": item.booking.booking_details[0].service_name if item.booking.booking_details else "Unknown Service",
+            "provider_id": item.booking.booking_details[0].service_id,
+            "date": item.booking.booking_date.strftime("%Y-%m-%d"),
+            "duration": item.booking.duration,
+            "total_cost": item.booking.total_cost,
+            "image": "static/images/booking.png",
+            "type": "booking"
+        }
+        for item in cart.cart_items if item.booking
+    ]
+
+    
+    cart_items = cart_dogs + cart_bookings
+    total_amount = sum(item["price"] if item["type"] == "dog" else item["total_cost"] for item in cart_items)  # Calculate total dynamically
 
     return render_template("order_summary.html", cart=cart_items, total_amount=total_amount)
     
@@ -381,7 +461,7 @@ def order_confirm():
             return jsonify({"error": "Your cart is empty!"}), 400
 
         # Calculate total amount
-        total_amount = sum(item.dog.price for item in cart.cart_items)
+        total_amount = sum(item.dog.price if item.dog else item.booking.total_cost for item in cart.cart_items)
 
         # Create a new order
         order = Order(user_id=user_id, total_amount=total_amount, shipping_address=address, payment_status=PaymentStatus.SUCCESS)
@@ -390,9 +470,10 @@ def order_confirm():
 
         # Move cart items to order details
         for cart_item in cart.cart_items:
-            order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, quantity=cart_item.quantity)
+            order_item = OrderDetail(order_id=order.order_id, dog_id=cart_item.dog_id, booking_id=cart_item.booking_id, quantity=cart_item.quantity)
             db.session.add(order_item)
 
+        db.session.commit()
         # Clear the cart after order confirmation
         CartItem.query.filter_by(cart_id=cart.cart_id).delete()
         db.session.delete(cart)
@@ -425,22 +506,40 @@ def order_confirm_page():
         flash("Order not found!", "error")
         return redirect(url_for("home"))  # Redirect if order not found
 
-    # Fetch the order items (dogs) from the database
-    order_items = OrderDetail.query.filter_by(order_id=order_id).all()
-    cart = []
-    for item in order_items:
-        dog = Dogs.query.filter_by(dog_id=item.dog_id).first()
-        if dog:
-            cart.append({
-                "id": dog.dog_id,
-                "name": dog.name,
-                "breed": dog.breed,
-                "age": dog.age,
-                "price": dog.price,
-                "image": dog.image
-            })
+    # Fetch Dog Items in Order
+    order_dogs = [
+        {
+            "id": item.dog.dog_id,
+            "name": item.dog.name,
+            "breed": item.dog.breed,
+            "price": item.dog.price,
+            "image": item.dog.image,
+            "type": "dog"
+        }
+        for item in order.order_details if item.dog
+    ]
 
-    return render_template("order_confirm.html", cart=cart)
+    # Fetch Booking Items in Order
+    order_bookings = [
+        {
+            "id": item.booking.booking_id,
+            "service_name": item.booking.booking_details[0].service_name if item.booking.booking_details else "Unknown Service",
+            "provider_id": item.booking.booking_details[0].service_id,
+            "date": item.booking.booking_date.strftime("%Y-%m-%d"),
+            "duration": item.booking.duration,
+            "total_cost": item.booking.total_cost,
+            "image": "static/images/booking.png",
+            "type": "booking"
+        }
+        for item in order.order_details if item.booking
+    ]
+
+    # Combine into a single list
+    order_items = order_dogs + order_bookings
+    print("Order Items:", order_items)
+    total_price = sum(item["price"] if item["type"] == "dog" else item["total_cost"] for item in order_items)
+
+    return render_template("order_confirm.html", cart=order_items, total_price=total_price)
 
 #************************************* route for log out ******************************************************
 @app.route("/logout")

@@ -58,21 +58,29 @@
             {% if cart %}
                 <div class="cart-items">
                     {% for item in cart %}
-                        <div class="cart-item" data-id="{{ item.id }}">
-                            <img src="{{ item.image }}" alt="{{ item.name }}">
+                        <div class="cart-item" data-id="{{ item.id }}" data-type="{{ item.type }}">
+                            <img src="{{ item.image }}" alt="{{ item.name if item.type == 'dog' else item.service_name }}">
                             <div class="item-details">
-                                <h3>{{ item.name }}</h3>
-                                <p>Breed: {{ item.breed }}</p>
-                                <p>Age: {{ item.age }}</p>
-                                <p>Price: Rs.{{ item.price }}</p>
+                                {% if item.type == "dog" %}
+                                    <h3>{{ item.name }}</h3>
+                                    <p>Breed: {{ item.breed }}</p>
+                                    <p>Age: {{ item.age }}</p>
+                                    <p>Price: Rs.{{ item.price }}</p>
+                                {% else %}
+                                    <h3>Service: {{ item.service_name }}</h3>
+                                    <p>Provider: {{ item.provider_id }}</p>
+                                    <p>Date: {{ item.date }}</p>
+                                    <p>Duration: {{ item.duration }}</p>
+                                    <p class="item-price">Rs.{{ item.total_cost }}</p>
+                                {% endif %}
                             </div>
-                            <button class="remove-from-cart" data-id="{{ item.id }}">Remove</button>
+                            <button class="remove-from-cart" data-id="{{ item.id }}" data-type="{{ item.type }}">Remove</button>
                         </div>
                     {% endfor %}
                 </div>
 
                 <div class="cart-summary">
-                    <h3>Total: Rs. <span id="total-price">{{ cart | sum(attribute='price') }}</span></h3>
+                    <h3>Total: Rs. <span id="total-price">{{ total_price }}</span></h3>
                     <a id="checkout" href="/order">Proceed to Checkout</a>
                 </div>
             {% else %}
@@ -87,43 +95,33 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Add to Cart Functionality
-            $(".add-to-cart").click(function() {
-                let dogId = $(this).data("id");
-    
-                $.ajax({
-                    url: "/cart/add",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({ dog_id: dogId }),
-                    success: function(response) {
-                        alert("Dog added to cart!");
-                        $("#cart-count").text(response.cart_count);  // Update cart count dynamically
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error adding to cart:", error);
-                        alert("Failed to add dog to cart. Try again!");
-                    }
-                });
-            });
-
-            // Remove from Cart Functionality
             $(".remove-from-cart").click(function() {
-                let dogId = $(this).data("id");
+                let itemId = $(this).data("id");
+                let itemType = $(this).data("type");
+
+                let requestData = {};
+                if (itemType === "dog") {
+                    requestData.dog_id = itemId;
+                } else if (itemType === "booking") {
+                    requestData.booking_id = itemId;
+                }
 
                 $.ajax({
                     url: "/cart/remove",
                     method: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify({ dog_id: dogId }),
+                    data: JSON.stringify(requestData),
                     success: function(response) {
-                        alert("Dog removed from cart!");
+                        alert(itemType.charAt(0).toUpperCase() + itemType.slice(1) + " removed from cart!");
+                        $("#cart-count").text(response.cart_count);  // Update cart count
 
-                        // Update cart count dynamically
-                        $("#cart-count").text(response.cart_count);
+                        // Remove item dynamically from UI
+                        $(".cart-item[data-id='" + itemId + "']").remove();
 
-                        // Remove item from UI without reloading
-                        $(".cart-item[data-id='" + dogId + "']").remove();
+                        // Update total price dynamically
+                        let itemPrice = parseFloat($(".cart-item[data-id='" + itemId + "'] .item-price").text().replace("Rs.", "").trim()) || 0;
+                        let currentTotal = parseFloat($("#total-price").text().replace("Rs.", "").trim()) || 0;
+                        $("#total-price").text(`Rs. ${currentTotal - itemPrice}`);
 
                         // If cart is empty, show "Your cart is empty"
                         if ($(".cart-item").length === 0) {
@@ -132,7 +130,7 @@
                     },
                     error: function(xhr, status, error) {
                         console.error("Error removing from cart:", error);
-                        alert("Failed to remove dog from cart. Try again!");
+                        alert("Failed to remove " + itemType + " from cart. Try again!");
                     }
                 });
             });

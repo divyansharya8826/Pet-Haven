@@ -115,27 +115,44 @@
                 data.cart.forEach(item => {
                     const cartItem = document.createElement("div");
                     cartItem.classList.add("order-item");
-                    cartItem.innerHTML = `
-                        <img src="${item.image}" alt="${item.name}">
-                        <div class="item-details">
-                            <h3>${item.name}</h3>
-                            <p>Breed: ${item.breed}</p>
-                            <p>Age: ${item.age}</p>
-                            <p class="item-price">Rs. ${item.price}</p>
-                        </div>
-                        <button class="remove-from-cart" data-id="${item.id}">Remove</button>
-                    `;
+
+                    if (item.type === "dog") {
+                        cartItem.innerHTML = `
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="item-details">
+                                <h3>${item.name}</h3>
+                                <p>Breed: ${item.breed}</p>
+                                <p>Age: ${item.age}</p>
+                                <p class="item-price">Rs. ${item.price}</p>
+                            </div>
+                            <button class="remove-from-cart" data-id="${item.id}" data-type="dog">Remove</button>
+                        `;
+                        totalAmount += item.price;
+                    } else if (item.type === "booking") {
+                        cartItem.innerHTML = `
+                            <img src="static/images/booking.png" alt="Booking">
+                            <div class="item-details">
+                                <h3>Service: ${item.service_name}</h3>
+                                <p>Provider: ${item.provider}</p>
+                                <p>Date: ${item.date}</p>
+                                <p>Duration: ${item.duration} Hours</p>
+                                <p class="item-price">Rs. ${item.total_cost}</p>
+                            </div>
+                            <button class="remove-from-cart" data-id="${item.id}" data-type="booking">Remove</button>
+                        `;
+                        totalAmount += item.total_cost;
+                    }
+
                     cartItemsContainer.appendChild(cartItem);
-                    totalAmount += item.price;
                 });
 
                 subtotalElement.textContent = `Rs. ${totalAmount}`;
                 totalElement.textContent = `Rs. ${totalAmount}`;
 
-                // Attach remove event listeners
+                // Attach event listeners for remove buttons
                 document.querySelectorAll(".remove-from-cart").forEach(button => {
                     button.addEventListener("click", function () {
-                        removeFromCart(this.getAttribute("data-id"));
+                        removeFromCart(this.getAttribute("data-id"), this.getAttribute("data-type"));
                     });
                 });
             })
@@ -143,18 +160,25 @@
         }
 
         // Remove Dog from Cart
-        function removeFromCart(dogId) {
+        function removeFromCart(itemId, itemType) {
+            let requestData = {};
+            if (itemType === "dog") {
+                requestData.dog_id = itemId;
+            } else if (itemType === "booking") {
+                requestData.booking_id = itemId;
+            }
+
             fetch("/cart/remove", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ dog_id: dogId })
+                body: JSON.stringify(requestData)
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message); // Show success message
+                alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from cart!`);
                 fetchCartData(); // Refresh cart
             })
-            .catch(error => console.error("Error removing from cart:", error));
+            .catch(error => console.error(`Error removing ${itemType} from cart:`, error));
         }
 
         // Validate Form Before Order Submission

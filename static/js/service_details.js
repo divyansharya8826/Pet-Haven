@@ -98,6 +98,9 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
             alert(`Booking Secured!\n\nService: ${provider.service_name}\nProvider: ${provider.name}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} hour${duration > 1 ? 's' : ''}\nTotal Cost: Rs.${totalCost.toLocaleString()}`);
             document.getElementById('bookingForm').reset();
             document.getElementById('costPreview').innerHTML = '';
+
+            // **Add booking to cart**
+            addBookingToCart(data.booking_id);  // Pass the newly created booking ID
         }
     })
     .catch(error => {
@@ -105,6 +108,29 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
         alert("Failed to book your appointment. Please try again!");
     });
 });
+
+// **Function to Add Booking to Cart**
+function addBookingToCart(bookingId) {
+    fetch("/cart/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_id: bookingId })  // Send booking ID
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error("Cart Error:", data.error);
+            alert("Failed to add booking to cart: " + data.error);
+        } else {
+            alert("Booking added to cart successfully!");
+            document.getElementById("cart-count").textContent = data.cart_count; // Update cart count dynamically
+        }
+    })
+    .catch(error => {
+        console.error("Cart Fetch Error:", error);
+        alert("Error adding booking to cart. Please try again!");
+    });
+}
 
 // Real-time Cost Preview
 document.getElementById('duration').addEventListener('change', (e) => {
