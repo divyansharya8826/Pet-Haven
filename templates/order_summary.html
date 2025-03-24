@@ -108,9 +108,41 @@
                 const cartItemsContainer = document.getElementById("cart-items");
                 const subtotalElement = document.getElementById("subtotal");
                 const totalElement = document.getElementById("total");
+                const orderForm = document.querySelector(".order-form");
+                const emptyCartMessage = document.querySelector(".empty-cart-message");
 
                 cartItemsContainer.innerHTML = ""; // Clear previous items
                 let totalAmount = 0;
+
+                // Check if cart is empty
+                if (!data.cart || data.cart.length === 0) {
+                    // Display empty cart message
+                    if (!emptyCartMessage) {
+                        const emptyMessage = document.createElement("div");
+                        emptyMessage.className = "empty-cart-message";
+                        emptyMessage.innerHTML = `
+                            <p>Your cart is empty.</p>
+                            <a href="/" class="back-to-shopping">Back to Shopping</a>
+                        `;
+                        cartItemsContainer.appendChild(emptyMessage);
+                    }
+                    
+                    // Hide order form if it exists
+                    if (orderForm) {
+                        orderForm.style.display = "none";
+                    }
+                    
+                    // Set totals to zero
+                    subtotalElement.textContent = "Rs. 0";
+                    totalElement.textContent = "Rs. 0";
+                    
+                    return;
+                }
+                
+                // Show order form if it was hidden
+                if (orderForm) {
+                    orderForm.style.display = "block";
+                }
 
                 data.cart.forEach(item => {
                     const cartItem = document.createElement("div");
@@ -180,6 +212,25 @@
                 return response.json();
             })
             .then(data => {
+                // Find the item element
+                const itemElement = document.querySelector(`.order-item button[data-id="${itemId}"][data-type="${itemType}"]`).closest('.order-item');
+                
+                // Add visual feedback
+                if (itemElement) {
+                    itemElement.style.opacity = "0.5";
+                    itemElement.style.transform = "translateX(100px)";
+                    itemElement.style.transition = "all 0.3s ease";
+                }
+                
+                // Show message
+                alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from cart!`);
+                
+                // Small delay before refreshing to allow server to process
+                setTimeout(() => {
+                    fetchCartData(); // Refresh cart
+                }, 300);
+            })
+            .then(data => {
                 if (data.error) {
                     console.error("Cart Error:", data.error);
                     alert(`Failed to remove ${itemType}: ${data.error}`);
@@ -217,8 +268,22 @@
             let errorMessages = [];
 
             inputs.forEach(input => {
+                let label = input.labels[0] ? input.labels[0].textContent : "Field";
+
                 if (!input.value.trim()) {
-                    errorMessages.push(`${input.previousElementSibling.textContent} is required.`);
+                    errorMessages.push(`${label} is required.`);
+                    isValid = false;
+                }
+
+                // Validate Phone Number (10-digit only)
+                if (input.id === "phone" && !/^\d{10}$/.test(input.value.trim())) {
+                    errorMessages.push("Enter a valid 10-digit phone number.");
+                    isValid = false;
+                }
+
+                // Validate ZIP Code (6-digit only)
+                if (input.id === "zip" && !/^\d{6}$/.test(input.value.trim())) {
+                    errorMessages.push("Enter a valid 6-digit ZIP code.");
                     isValid = false;
                 }
             });
@@ -243,14 +308,16 @@
             fetch("/order-confirm", {
                 method: "POST",
                 headers: { 
-                    "Content-Type": "application/json",  // Ensure proper headers
+                    "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify(requestData)  // Ensure payload is properly serialized
+                body: JSON.stringify(requestData)
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                    return response.json().then(errData => { 
+                        throw new Error(errData.error || "Failed to place order."); 
+                    });
                 }
                 return response.json();
             })
@@ -259,13 +326,19 @@
                     console.error("Server Error:", data.error);
                     alert("Order Failed: " + data.error);
                 } else {
-                alert("Order Placed Successfully!");
-                window.location.href = `/order-confirm?order_id=${data.order_id}`; // Redirect after success
+                    alert("Order Placed Successfully!");
+                    document.getElementById("order-form").reset(); // ✅ Clear form after order
+                    if (data.order_id) {
+                        window.location.href = `/order-confirm?order_id=${data.order_id}`;
+                    } else {
+                        alert("Order ID missing. Redirecting to homepage.");
+                        window.location.href = "/";
+                    }
                 }
             })
             .catch(error => {
                 console.error("Fetch Error:", error);
-                alert("Failed to place order. Please try again!");
+                alert(error.message || "Failed to place order. Please try again!");
             });
         }
     </script>
