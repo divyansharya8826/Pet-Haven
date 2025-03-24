@@ -220,7 +220,7 @@ def cart_page():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": str(item.booking.duration),  
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",  # Placeholder image
+            "image": "static/images/photo-1583511655826-05700d52f4d9.avif",  # Placeholder image
             "type": "booking"
         }
         for item in cart.cart_items if item.booking
@@ -269,7 +269,7 @@ def get_cart_items():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": item.booking.duration,
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",
+            "image": "static/images/photo-1583511655826-05700d52f4d9.avif",
             "type": "booking"
         }
         for item in cart.cart_items if item.booking
@@ -425,7 +425,7 @@ def order_summary():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": item.booking.duration,
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",
+            "image": "static/images/photo-1583511655826-05700d52f4d9.avif",
             "type": "booking"
         }
         for item in cart.cart_items if item.booking
@@ -528,7 +528,7 @@ def order_confirm_page():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": item.booking.duration,
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",
+            "image": "static/images/photo-1583511655826-05700d52f4d9.avif",
             "type": "booking"
         }
         for item in order.order_details if item.booking

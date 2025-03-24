@@ -130,10 +130,10 @@
                         totalAmount += item.price;
                     } else if (item.type === "booking") {
                         cartItem.innerHTML = `
-                            <img src="static/images/booking.png" alt="Booking">
+                            <img src="static/images/photo-1583511655826-05700d52f4d9.avif" alt="Booking">
                             <div class="item-details">
                                 <h3>Service: ${item.service_name}</h3>
-                                <p>Provider: ${item.provider}</p>
+                                <p>Provider: ${item.provider_id}</p>
                                 <p>Date: ${item.date}</p>
                                 <p>Duration: ${item.duration} Hours</p>
                                 <p class="item-price">Rs. ${item.total_cost}</p>
@@ -173,12 +173,41 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestData)
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from cart!`);
-                fetchCartData(); // Refresh cart
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
             })
-            .catch(error => console.error(`Error removing ${itemType} from cart:`, error));
+            .then(data => {
+                if (data.error) {
+                    console.error("Cart Error:", data.error);
+                    alert(`Failed to remove ${itemType}: ${data.error}`);
+                    return;
+                }
+
+                alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from cart!`);
+
+                // Update cart count dynamically
+                const cartCountElement = document.getElementById("cart-count");
+                if (cartCountElement) {
+                    cartCountElement.textContent = data.cart_count;
+                }
+
+                fetchCartData(); // Refresh cart items
+
+                // If cart is empty, show empty cart message
+                setTimeout(() => {
+                    if (document.querySelectorAll(".cart-item").length === 0) {
+                        document.querySelector(".cart-items").innerHTML = "<p>Your cart is empty.</p>";
+                    }
+                }, 500);
+
+            })
+            .catch(error => {
+                console.error(`Error removing ${itemType} from cart:`, error);
+                alert(`Error removing ${itemType}. Please try again!`);
+            });
         }
 
         // Validate Form Before Order Submission
