@@ -61,6 +61,13 @@ h2 {
   border: 2px solid #007bff;
 }
 
+/* Styling for booking SVG image */
+.cart-item img[src*="booking.svg"] {
+  padding: 5px;
+  background-color: #f8f9fa;
+  border: 2px solid #4CAF50;
+}
+
 .item-details {
   flex-grow: 1;
 }

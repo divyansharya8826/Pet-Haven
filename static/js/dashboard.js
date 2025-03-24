@@ -20,6 +20,13 @@ function toggleSidebar() {
 // Function to fetch services from backend
 async function fetchServices(category = 'all') {
     try {
+        // Check if we're on the services page before fetching
+        const servicesGrid = document.getElementById('servicesGrid');
+        if (!servicesGrid) {
+            console.log("Not on services page, skipping services fetch");
+            return;
+        }
+        
         const response = await fetch('/api/services');
         const services = await response.json();
         renderServices(services, category);
@@ -31,6 +38,11 @@ async function fetchServices(category = 'all') {
 // Function to generate service cards dynamically
 function renderServices(services, category = 'all') {
     const servicesGrid = document.getElementById('servicesGrid');
+    if (!servicesGrid) {
+        console.log("Services grid not found, skipping render");
+        return;
+    }
+    
     servicesGrid.innerHTML = '';
 
     services.forEach(service => {
@@ -64,33 +76,46 @@ function redirectToServiceProviders() {
 }
 
 // Tab filtering functionality
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        // Remove active class from all tabs
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        // Add active class to clicked tab
-        tab.classList.add('active');
+function initializeTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    if (tabs.length === 0) {
+        console.log("No tabs found, skipping tab initialization");
+        return;
+    }
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            // Add active class to clicked tab
+            tab.classList.add('active');
 
-        const category = tab.getAttribute('data-category');
-        fetchServices(category);
+            const category = tab.getAttribute('data-category');
+            fetchServices(category);
+        });
     });
-});
+}
 
-// Initial render
+// Initial render - only if we're on the services page
 document.addEventListener('DOMContentLoaded', () => {
-    fetchServices('all');
+    // Initialize tabs if they exist
+    initializeTabs();
+    
+    // Only fetch services if we're on the services page
+    if (document.getElementById('servicesGrid')) {
+        fetchServices('all');
 
-    // Add animations on page load
-    const cards = document.querySelectorAll('.service-card');
-    cards.forEach((card, index) => {
-        card.style.opacity = 0;
-        setTimeout(() => {
-            card.style.transition = 'opacity 0.5s ease-in';
-            card.style.opacity = 1;
-        }, index * 200);
-    });
+        // Add animations on page load
+        const cards = document.querySelectorAll('.service-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = 0;
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease-in';
+                card.style.opacity = 1;
+            }, index * 200);
+        });
+    }
 });
-
 
 function bookService(serviceId) {
     window.location.href = `/service-details/${serviceId}`;

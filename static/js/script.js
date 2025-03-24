@@ -18,17 +18,26 @@ function toggleSidebar() {
 
 /****************************************** fetching dogs details from the api for listing and checking the filters for apply changes in the listing */
 document.addEventListener("DOMContentLoaded", function () {
-  fetchDogs();
-  // Filter event listeners
-  document
-    .getElementById("breedFilter")
-    .addEventListener("change", applyFilters);
-  document.getElementById("ageFilter").addEventListener("change", applyFilters);
-  document.getElementById("minPrice").addEventListener("input", applyFilters);
-  document.getElementById("maxPrice").addEventListener("input", applyFilters);
-  document
-    .getElementById("searchInput")
-    .addEventListener("keyup", applyFilters);
+  // Check if we're on a page with dog listings before fetching and setting up filters
+  if (document.getElementById("dogGrid")) {
+    fetchDogs();
+    
+    // Filter event listeners - only attach if elements exist
+    const breedFilter = document.getElementById("breedFilter");
+    const ageFilter = document.getElementById("ageFilter");
+    const minPrice = document.getElementById("minPrice");
+    const maxPrice = document.getElementById("maxPrice");
+    const searchInput = document.getElementById("searchInput");
+    
+    if (breedFilter) breedFilter.addEventListener("change", applyFilters);
+    if (ageFilter) ageFilter.addEventListener("change", applyFilters);
+    if (minPrice) minPrice.addEventListener("input", applyFilters);
+    if (maxPrice) maxPrice.addEventListener("input", applyFilters);
+    if (searchInput) searchInput.addEventListener("keyup", applyFilters);
+  }
+  
+  // Always try to update cart count if the element exists
+  updateCartCount();
 });
 
 let allDogs = [];
@@ -49,10 +58,13 @@ function fetchDogs() {
         (max, dog) => Math.max(max, dog.price),
         0
       );
-      document.getElementById("maxPrice").value = maxDogPrice;
-      document.getElementById(
-        "maxPriceValue"
-      ).textContent = `Max Price: Rs.${maxDogPrice}`;
+      
+      const maxPriceElement = document.getElementById("maxPrice");
+      const maxPriceValueElement = document.getElementById("maxPriceValue");
+      
+      if (maxPriceElement) maxPriceElement.value = maxDogPrice;
+      if (maxPriceValueElement) maxPriceValueElement.textContent = `Max Price: Rs.${maxDogPrice}`;
+      
       applyFilters(); // Initial display with filters
     })
     .catch((error) => console.error("Error fetching dogs:", error));
@@ -101,7 +113,9 @@ function displayDogs(dogs) {
 }
 
 function displayDogDetails(dog) {
-  let detailsSection = document.getElementById("dogDetails");
+  const detailsSection = document.getElementById("dogDetails");
+  if (!detailsSection) return; // Exit if element doesn't exist
+  
   detailsSection.innerHTML = `
       <div class="dog-info">
           <img src="${dog.image}" alt="${dog.name}" />
@@ -113,22 +127,30 @@ function displayDogDetails(dog) {
           <p><strong>Description:</strong> ${dog.description}</p>
       </div>
   `;
-  let modal = document.getElementById("dogDetailsModal");
-  modal.style.display = "block"; // Show modal
+  const modal = document.getElementById("dogDetailsModal");
+  if (modal) modal.style.display = "block"; // Show modal only if it exists
 }
+
 function closeModal() {
-  let modal = document.getElementById("dogDetailsModal");
-  modal.style.display = "none"; // Hide modal
+  const modal = document.getElementById("dogDetailsModal");
+  if (modal) modal.style.display = "none"; // Hide modal only if it exists
 }
 
-// Attach close event to the "X" button
-document.getElementById("closeModal").addEventListener("click", closeModal);
-
-// Close the modal if the user clicks anywhere outside of the modal content
-window.addEventListener("click", function(event) {
-  let modal = document.getElementById("dogDetailsModal");
-  if (event.target === modal) {
-    closeModal();
+// Only attach event listeners if elements exist
+document.addEventListener("DOMContentLoaded", function() {
+  const closeModalBtn = document.getElementById("closeModal");
+  const dogDetailsModal = document.getElementById("dogDetailsModal");
+  
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", closeModal);
+  }
+  
+  if (dogDetailsModal) {
+    window.addEventListener("click", function(event) {
+      if (event.target === dogDetailsModal) {
+        closeModal();
+      }
+    });
   }
 });
 
@@ -189,31 +211,39 @@ function updatePagination(totalPages, totalItems) {
 
 /************************************ function for appling filters ******************************************/
 function applyFilters() {
-  const breedFilter = document.getElementById("breedFilter").value;
-  const ageFilter = document.getElementById("ageFilter").value;
-  const minPrice = parseInt(document.getElementById("minPrice").value) || 0;
-  const maxPrice =
-    parseInt(document.getElementById("maxPrice").value) || Infinity;
-  const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+  const breedFilter = document.getElementById("breedFilter");
+  const ageFilter = document.getElementById("ageFilter");
+  const minPrice = document.getElementById("minPrice");
+  const maxPrice = document.getElementById("maxPrice");
+  const searchInput = document.getElementById("searchInput");
+  const minPriceValueElement = document.getElementById("minPriceValue");
+  const maxPriceValueElement = document.getElementById("maxPriceValue");
+  
+  // Exit if we're not on a page with filters
+  if (!breedFilter || !ageFilter || !minPrice || !maxPrice || !searchInput) {
+    return;
+  }
+  
+  const breedFilterValue = breedFilter.value;
+  const ageFilterValue = ageFilter.value;
+  const minPriceVal = parseInt(minPrice.value) || 0;
+  const maxPriceVal = parseInt(maxPrice.value) || Infinity;
+  const searchTermValue = searchInput.value.toLowerCase();
 
-  document.getElementById(
-    "minPriceValue"
-  ).textContent = `Min Price: Rs.${minPrice}`;
-  document.getElementById(
-    "maxPriceValue"
-  ).textContent = `Max Price: Rs.${maxPrice}`;
+  if (minPriceValueElement) minPriceValueElement.textContent = `Min Price: Rs.${minPriceVal}`;
+  if (maxPriceValueElement) maxPriceValueElement.textContent = `Max Price: Rs.${maxPriceVal}`;
 
   const filteredDogs = allDogs.filter((dog) => {
-    const nameMatch = dog.name.toLowerCase().includes(searchTerm);
-    const breedMatch = dog.breed.toLowerCase().includes(searchTerm);
+    const nameMatch = dog.name.toLowerCase().includes(searchTermValue);
+    const breedMatch = dog.breed.toLowerCase().includes(searchTermValue);
     const descriptionMatch = dog.description
-      ? dog.description.toLowerCase().includes(searchTerm)
+      ? dog.description.toLowerCase().includes(searchTermValue)
       : false;
     return (
-      (breedFilter === "" || dog.breed === breedFilter) &&
-      (ageFilter === "" || dog.age === ageFilter) &&
-      dog.price >= minPrice &&
-      dog.price <= maxPrice &&
+      (breedFilterValue === "" || dog.breed === breedFilterValue) &&
+      (ageFilterValue === "" || dog.age === ageFilterValue) &&
+      dog.price >= minPriceVal &&
+      dog.price <= maxPriceVal &&
       (nameMatch || breedMatch || descriptionMatch)
     );
   });
@@ -232,7 +262,10 @@ function updateCartCount() {
     fetch("/api/cart_count")
         .then(response => response.json())
         .then(data => {
-            document.getElementById("cart-count").textContent = data.cart_count;  //Update UI
+            const cartCountElement = document.getElementById("cart-count");
+            if (cartCountElement) {
+                cartCountElement.textContent = data.cart_count;  // Update UI only if element exists
+            }
         })
         .catch(error => console.error("Error fetching cart count:", error));
 }
@@ -250,13 +283,51 @@ function attachCartListeners() {
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                // Show beautiful notification instead of alert
+                showNotification('addToCartNotification');
+                
+                // Update dog name in notification if possible
+                const dogCard = this.closest('.dog-card');
+                if (dogCard) {
+                    const dogName = dogCard.querySelector('h3').textContent;
+                    document.querySelector('#addToCartNotification .notification-title').textContent = 
+                        `${dogName} added to your cart!`;
+                }
+                
                 updateCartCount();  // Call the function to update cart count
             })
             .catch(error => console.error("Error adding to cart:", error));
         });
     });
 }
+
+// Function to show notification
+function showNotification(notificationId) {
+    const notification = document.getElementById(notificationId);
+    if (notification) {
+        notification.classList.add('show');
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            closeNotification(notificationId);
+        }, 5000);
+    }
+}
+
+// Function to close notification
+function closeNotification(notificationId) {
+    const notification = document.getElementById(notificationId);
+    if (notification) {
+        notification.classList.remove('show');
+    }
+}
+
+// Check for order success parameter in URL
+document.addEventListener("DOMContentLoaded", function() {
+    // Removed URL check to avoid showing order success notification on homepage
+    // Now it's shown on the order confirmation page directly
+});
+
 /************************************** function for remove from cart feature ********************************/
 function attachRemoveListeners() {
     document.querySelectorAll(".remove-from-cart").forEach(button => {
@@ -270,7 +341,7 @@ function attachRemoveListeners() {
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                // No need to alert here as cart page has its own notification system
                 updateCartCount();  // Update cart count
                 removeDogFromUI(dogId);  // Remove dog from UI without reloading
             })

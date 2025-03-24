@@ -141,10 +141,12 @@ def edit_dog(dog_id):
 
     db.session.commit()
     return jsonify({"message": "Dog updated successfully!"})
+
 #************************************ route for home page **************************************************
 @app.route("/")
 def home():
     if "user_id" in session:
+        # Pass any query parameters to the template to allow for order success notifications
         return render_template("petshop.html")
     return redirect("/login")
 
@@ -220,7 +222,7 @@ def cart_page():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": str(item.booking.duration),  
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",  # Placeholder image
+            "image": "static/images/booking.svg",  # Changed from booking.png to booking.svg
             "type": "booking"
         }
         for item in cart.cart_items if item.booking
@@ -269,7 +271,7 @@ def get_cart_items():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": item.booking.duration,
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",
+            "image": "static/images/booking.svg",  # Changed from booking.png to booking.svg
             "type": "booking"
         }
         for item in cart.cart_items if item.booking
@@ -282,47 +284,97 @@ def get_cart_items():
 #******************************** route for add to cart functionality ***************************************
 @app.route("/cart/add", methods=['POST'])
 def add_to_cart():
+    print("Add to cart request received")
+    
+    # Check if user is logged in
     if "user_id" not in session:
+        print("User not logged in")
         return jsonify({"error": "User not logged in"}), 401
 
-    data = request.get_json()
-    dog_id = data.get("dog_id")
-    user_id = session["user_id"]  # Fetch user_id from session
-    booking_id  = data.get("booking_id")
+    try:
+        data = request.get_json()
+        if not data:
+            print("No data provided in request")
+            return jsonify({"error": "Invalid request - no data provided"}), 400
+            
+        dog_id = data.get("dog_id")
+        booking_id = data.get("booking_id")
+        user_id = session["user_id"]  # Fetch user_id from session
 
-    if not dog_id and not booking_id:
-        return jsonify({"error": "Invalid request"}), 400
+        print(f"Adding to cart - user_id: {user_id}, dog_id: {dog_id}, booking_id: {booking_id}")
 
-    # Check if the user already has a cart
-    cart = Cart.query.filter_by(user_id=user_id).first()
-    if not cart:
-        cart = Cart(user_id=user_id, total_amount=0)
-        db.session.add(cart)
+        if not dog_id and not booking_id:
+            print("No dog_id or booking_id provided")
+            return jsonify({"error": "Invalid request - no dog_id or booking_id provided"}), 400
+
+        # Check if the user already has a cart
+        cart = Cart.query.filter_by(user_id=user_id).first()
+        if not cart:
+            print(f"Creating new cart for user {user_id}")
+            cart = Cart(user_id=user_id, total_amount=0)
+            db.session.add(cart)
+            db.session.commit()
+            print(f"Created new cart with ID: {cart.cart_id}")
+
+        if dog_id:
+            # Check if the dog is already in the cart
+            cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
+            if cart_item:
+                print(f"Dog {dog_id} already in cart")
+                return jsonify({"message": "Dog already in cart!", "cart_count": len(cart.cart_items)})
+
+            # Check if dog exists
+            dog = Dogs.query.get(dog_id)
+            if not dog:
+                print(f"Dog {dog_id} not found")
+                return jsonify({"error": f"Dog with id {dog_id} not found"}), 404
+
+            # Add dog to cart
+            cart_item = CartItem(cart_id=cart.cart_id, dog_id=dog_id)
+            db.session.add(cart_item)
+            print(f"Added dog {dog_id} to cart {cart.cart_id}")
+
+        elif booking_id:
+            print(f"Processing booking_id: {booking_id}, type: {type(booking_id)}")
+            
+            # Verify booking exists
+            booking = Booking.query.get(booking_id)
+            if not booking:
+                print(f"Booking {booking_id} not found")
+                return jsonify({"error": f"Booking with id {booking_id} not found"}), 404
+                
+            # Check if booking belongs to user
+            if booking.user_id != user_id:
+                print(f"Booking {booking_id} belongs to user {booking.user_id}, not current user {user_id}")
+                return jsonify({"error": "Unauthorized to add this booking to cart"}), 403
+                
+            # Check if the booking is already in the cart
+            cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, booking_id=booking_id).first()
+            if cart_item:
+                print(f"Booking {booking_id} already in cart")
+                return jsonify({"message": "Booking already in cart!", "cart_count": len(cart.cart_items)})
+                
+            # Add booking to cart
+            cart_item = CartItem(cart_id=cart.cart_id, booking_id=booking_id)
+            db.session.add(cart_item)
+            print(f"Added booking {booking_id} to cart {cart.cart_id}")
+        
         db.session.commit()
+        
+        cart_count = len(cart.cart_items)
+        print(f"Cart now has {cart_count} items")
 
-    if dog_id:
-        # Check if the dog is already in the cart
-        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
-        if cart_item:
-            return jsonify({"message": "Dog already in cart!", "cart_count": len(cart.cart_items)})
-
-        # Add dog to cart
-        cart_item = CartItem(cart_id=cart.cart_id, dog_id=dog_id)
-        db.session.add(cart_item)
-
-    elif booking_id:
-        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, booking_id=booking_id).first()
-        if cart_item:
-            return jsonify({"message": "Booking already in cart!", "cart_count": len(cart.cart_items)})
-        cart_item = CartItem(cart_id=cart.cart_id, booking_id=booking_id)
-        db.session.add(cart_item)
-    
-    db.session.commit()
-
-    if dog_id:
-        return jsonify({"message": "Dog added successfully!", "cart_count": len(cart.cart_items)})
-    elif booking_id:
-        return jsonify({"message": "Booking added successfully!", "cart_count": len(cart.cart_items)})
+        if dog_id:
+            return jsonify({"message": "Dog added successfully!", "cart_count": cart_count})
+        elif booking_id:
+            return jsonify({"message": "Booking added successfully!", "cart_count": cart_count})
+            
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error adding to cart: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to add to cart: {str(e)}"}), 500
 
 #************************************ api for updating cart count ******************************************
 @app.route("/api/cart_count", methods=["GET"])
@@ -348,44 +400,71 @@ def remove_from_cart():
     if "user_id" not in session:
         return jsonify({"error": "User not logged in"}), 401
 
-    data = request.get_json()
-    dog_id = data.get("dog_id")
-    user_id = session["user_id"]
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid request - no data provided"}), 400
+            
+        user_id = session["user_id"]
 
-    cart = Cart.query.filter_by(user_id=user_id).first()
-    if not cart:
-        return jsonify({"error": "Cart not found"}), 404
-    
-    # Remove Dog from Cart
-    if "dog_id" in data:
-        dog_id = data["dog_id"]
-        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
+        # Find the user's cart
+        cart = Cart.query.filter_by(user_id=user_id).first()
+        if not cart:
+            return jsonify({"error": "Cart not found"}), 404
+        
+        cart_item = None
+        
+        # Remove Dog from Cart
+        if "dog_id" in data:
+            dog_id = data["dog_id"]
+            cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, dog_id=dog_id).first()
+            if cart_item:
+                print(f"Removing dog {dog_id} from cart {cart.cart_id}")
 
-    # Remove Booking from Cart
-    elif "booking_id" in data:
-        booking_id = data["booking_id"]
-        cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, booking_id=booking_id).first()
+        # Remove Booking from Cart
+        elif "booking_id" in data:
+            booking_id = data["booking_id"]
+            cart_item = CartItem.query.filter_by(cart_id=cart.cart_id, booking_id=booking_id).first()
+            if cart_item:
+                print(f"Removing booking {booking_id} from cart {cart.cart_id}")
+        else:
+            return jsonify({"error": "Invalid request - no dog_id or booking_id provided"}), 400
 
-    else:
-        return jsonify({"error": "Invalid request"}), 400
-
-    if cart_item:
+        if not cart_item:
+            return jsonify({"error": "Item not found in cart"}), 404
+            
+        # Delete the cart item
         db.session.delete(cart_item)
         db.session.commit()
+        
+        # Get updated cart items to calculate total
+        cart_items = []
+        
+        # Fetch Dog Items in Cart
+        for item in cart.cart_items:
+            if item.dog:
+                cart_items.append({"price": item.dog.price, "type": "dog"})
+            elif item.booking:
+                cart_items.append({"total_cost": item.booking.total_cost, "type": "booking"})
+        
+        # Recalculate total amount
+        total_amount = sum(item["price"] if item["type"] == "dog" else item["total_cost"] for item in cart_items)
+        cart.total_amount = total_amount  # Update cart total amount
+        db.session.commit()
+        
+        cart_count = len(cart.cart_items)
+        print(f"Cart now has {cart_count} items with total amount {total_amount}")
+
+        return jsonify({
+            "message": "Item removed from cart!",
+            "cart_count": cart_count,
+            "total_amount": total_amount
+        })
     
-    # Recalculate total amount
-    total_amount = sum(item["price"] if item["type"] == "dog" else item["total_cost"] for item in cart_items)
-    cart.total_amount = total_amount  # Update cart total amount
-    db.session.commit()
-
-    db.session.delete(cart)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Item removed from cart!",
-        "cart_count": len(cart.cart_items),
-        "total_amount": total_amount
-    })
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error removing from cart: {str(e)}")
+        return jsonify({"error": f"Failed to remove from cart: {str(e)}"}), 500
 
 #************************************* route for order summary ***********************************************
 
@@ -425,7 +504,7 @@ def order_summary():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": item.booking.duration,
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",
+            "image": "static/images/booking.svg",  # Changed from booking.png to booking.svg
             "type": "booking"
         }
         for item in cart.cart_items if item.booking
@@ -528,7 +607,7 @@ def order_confirm_page():
             "date": item.booking.booking_date.strftime("%Y-%m-%d"),
             "duration": item.booking.duration,
             "total_cost": item.booking.total_cost,
-            "image": "static/images/booking.png",
+            "image": "static/images/booking.svg",  # Changed from booking.png to booking.svg
             "type": "booking"
         }
         for item in order.order_details if item.booking
@@ -596,58 +675,99 @@ def service_details(service_id):
 #*************************************** routes for booking service providers *******************************
 @app.route('/book-service', methods=['POST'])
 def book_service():
+    print("Book service request received")
+    
+    # Check if user is logged in
     if "user_id" not in session:
+        print("User not logged in")
         return jsonify({"error": "User not logged in"}), 401  # Ensure user is logged in
 
-    data = request.get_json()
+    try:
+        data = request.get_json()
+        
+        if not data:
+            print("No data provided in request")
+            return jsonify({"error": "Invalid data"}), 400  # Handle missing data
+
+        user_id = session["user_id"]
+        print(f"Processing booking for user: {user_id}")
+        
+        service_id = data.get("service_id")
+        date = data.get("date")
+        time = data.get("time")
+        duration = data.get("duration")
+        total_cost = data.get("totalCost")
+        
+        print(f"Booking details: service_id={service_id}, date={date}, time={time}, duration={duration}, cost={total_cost}")
+        
+        # Ensure valid inputs
+        if not all([service_id, date, time, duration, total_cost]):
+            missing = []
+            if not service_id: missing.append("service_id")
+            if not date: missing.append("date")
+            if not time: missing.append("time")
+            if not duration: missing.append("duration")
+            if not total_cost: missing.append("total_cost")
+            print(f"Missing booking details: {', '.join(missing)}")
+            return jsonify({"error": f"Missing booking details: {', '.join(missing)}"}), 400
+
+        # Convert strings to appropriate types
+        try:
+            duration = int(duration)
+            total_cost = int(total_cost)
+        except (ValueError, TypeError) as e:
+            print(f"Type conversion error: {str(e)}")
+            return jsonify({"error": f"Invalid data format: {str(e)}"}), 400
+
+        # Verify the service provider exists
+        provider = ServiceProvider.query.get(service_id)
+        if not provider:
+            print(f"Service provider not found: {service_id}")
+            return jsonify({"error": "Service provider not found"}), 404
+
+        # Convert date and time to a proper format
+        try:
+            booking_datetime = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+            print(f"Parsed datetime: {booking_datetime}")
+        except ValueError as e:
+            print(f"Date/time parsing error: {str(e)}")
+            return jsonify({"error": f"Invalid date or time format: {str(e)}"}), 400
+
+        # Store Booking in `booking` Table
+        booking = Booking(
+            user_id=user_id,
+            booking_date=booking_datetime,
+            duration=duration,
+            total_cost=total_cost
+        )
+        db.session.add(booking)
+        db.session.commit()
+        print(f"Created booking with ID: {booking.booking_id}")
+
+        # Store Booking Details in `booking_detail` Table
+        booking_detail = BookingDetail(
+            booking_id=booking.booking_id,
+            service_id=service_id,
+            user_id=user_id,
+            service_name=provider.service_name,
+            service_price=total_cost
+        )
+        db.session.add(booking_detail)
+        db.session.commit()
+        print(f"Created booking detail with ID: {booking_detail.booking_detail_id}")
+
+        return jsonify({
+            "message": "Booking confirmed successfully!",
+            "booking_id": booking.booking_id,
+            "total_cost": total_cost
+        })
     
-    if not data:
-        return jsonify({"error": "Invalid data"}), 400  # Handle missing data
-
-    user_id = session["user_id"]
-    service_id = data.get("service_id")
-    date = data.get("date")
-    time = data.get("time")
-    duration = int(data.get("duration"))
-    total_cost = int(data.get("totalCost"))
-    
-    # Ensure valid inputs
-    if not service_id or not date or not time or not duration:
-        print(service_id, date, time, duration)
-        return jsonify({"error": "Missing booking details"}), 400
-
-    # Convert date and time to a proper format
-    booking_datetime = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
-    print(booking_datetime)
-
-    provider = ServiceProvider.query.get_or_404(service_id)
-
-    # Store Booking in `booking` Table
-    booking = Booking(
-        user_id=user_id,
-        booking_date=booking_datetime,
-        duration=duration,
-        total_cost=total_cost
-    )
-    db.session.add(booking)
-    db.session.commit()
-
-    # Store Booking Details in `booking_detail` Table
-    booking_detail = BookingDetail(
-        booking_id=booking.booking_id,
-        service_id=service_id,
-        user_id=user_id,
-        service_name=provider.service_name,
-        service_price=total_cost
-    )
-    db.session.add(booking_detail)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Booking confirmed successfully!",
-        "booking_id": booking.booking_id,
-        "total_cost": total_cost
-    })
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error in book_service: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to create booking: {str(e)}"}), 500
 
 
 if __name__ == "__main__":

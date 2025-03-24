@@ -108,9 +108,41 @@
                 const cartItemsContainer = document.getElementById("cart-items");
                 const subtotalElement = document.getElementById("subtotal");
                 const totalElement = document.getElementById("total");
+                const orderForm = document.querySelector(".order-form");
+                const emptyCartMessage = document.querySelector(".empty-cart-message");
 
                 cartItemsContainer.innerHTML = ""; // Clear previous items
                 let totalAmount = 0;
+
+                // Check if cart is empty
+                if (!data.cart || data.cart.length === 0) {
+                    // Display empty cart message
+                    if (!emptyCartMessage) {
+                        const emptyMessage = document.createElement("div");
+                        emptyMessage.className = "empty-cart-message";
+                        emptyMessage.innerHTML = `
+                            <p>Your cart is empty.</p>
+                            <a href="/" class="back-to-shopping">Back to Shopping</a>
+                        `;
+                        cartItemsContainer.appendChild(emptyMessage);
+                    }
+                    
+                    // Hide order form if it exists
+                    if (orderForm) {
+                        orderForm.style.display = "none";
+                    }
+                    
+                    // Set totals to zero
+                    subtotalElement.textContent = "Rs. 0";
+                    totalElement.textContent = "Rs. 0";
+                    
+                    return;
+                }
+                
+                // Show order form if it was hidden
+                if (orderForm) {
+                    orderForm.style.display = "block";
+                }
 
                 data.cart.forEach(item => {
                     const cartItem = document.createElement("div");
@@ -130,7 +162,7 @@
                         totalAmount += item.price;
                     } else if (item.type === "booking") {
                         cartItem.innerHTML = `
-                            <img src="static/images/booking.png" alt="Booking">
+                            <img src="static/images/booking.svg" alt="Booking">
                             <div class="item-details">
                                 <h3>Service: ${item.service_name}</h3>
                                 <p>Provider: ${item.provider}</p>
@@ -175,8 +207,23 @@
             })
             .then(response => response.json())
             .then(data => {
+                // Find the item element
+                const itemElement = document.querySelector(`.order-item button[data-id="${itemId}"][data-type="${itemType}"]`).closest('.order-item');
+                
+                // Add visual feedback
+                if (itemElement) {
+                    itemElement.style.opacity = "0.5";
+                    itemElement.style.transform = "translateX(100px)";
+                    itemElement.style.transition = "all 0.3s ease";
+                }
+                
+                // Show message
                 alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from cart!`);
-                fetchCartData(); // Refresh cart
+                
+                // Small delay before refreshing to allow server to process
+                setTimeout(() => {
+                    fetchCartData(); // Refresh cart
+                }, 300);
             })
             .catch(error => console.error(`Error removing ${itemType} from cart:`, error));
         }
@@ -230,8 +277,8 @@
                     console.error("Server Error:", data.error);
                     alert("Order Failed: " + data.error);
                 } else {
-                alert("Order Placed Successfully!");
-                window.location.href = `/order-confirm?order_id=${data.order_id}`; // Redirect after success
+                    // Redirect to order confirmation page instead of homepage
+                    window.location.href = `/order-confirm?order_id=${data.order_id}`;
                 }
             })
             .catch(error => {

@@ -13,7 +13,114 @@
       integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
-    />    
+    />
+    <style>
+        /* Confirmation Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .cancel-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .confirm-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background-color: #cc0000;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        /* Empty cart message */
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .empty-cart p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .empty-cart a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        .empty-cart a:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <!-- Burger Icon -->
@@ -92,48 +199,98 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Remove from Cart</h3>
+            <p>Are you sure you want to remove this item from your cart?</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button id="confirm-remove" class="confirm-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // Global variables to store item to be removed
+        let itemToRemoveId;
+        let itemToRemoveType;
+        
+        // Open confirmation modal when Remove button is clicked
         $(document).ready(function() {
             $(".remove-from-cart").click(function() {
-                let itemId = $(this).data("id");
-                let itemType = $(this).data("type");
-
-                let requestData = {};
-                if (itemType === "dog") {
-                    requestData.dog_id = itemId;
-                } else if (itemType === "booking") {
-                    requestData.booking_id = itemId;
-                }
-
-                $.ajax({
-                    url: "/cart/remove",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(requestData),
-                    success: function(response) {
-                        alert(itemType.charAt(0).toUpperCase() + itemType.slice(1) + " removed from cart!");
-                        $("#cart-count").text(response.cart_count);  // Update cart count
-
-                        // Remove item dynamically from UI
-                        $(".cart-item[data-id='" + itemId + "']").remove();
-
-                        // Update total price dynamically
-                        let itemPrice = parseFloat($(".cart-item[data-id='" + itemId + "'] .item-price").text().replace("Rs.", "").trim()) || 0;
-                        let currentTotal = parseFloat($("#total-price").text().replace("Rs.", "").trim()) || 0;
-                        $("#total-price").text(`Rs. ${currentTotal - itemPrice}`);
-
-                        // If cart is empty, show "Your cart is empty"
-                        if ($(".cart-item").length === 0) {
-                            $(".cart-items").html("<p>Your cart is empty.</p>");
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error removing from cart:", error);
-                        alert("Failed to remove " + itemType + " from cart. Try again!");
-                    }
-                });
+                // Store the item data
+                itemToRemoveId = $(this).data("id");
+                itemToRemoveType = $(this).data("type");
+                
+                // Show the modal
+                $("#confirmation-modal").css("display", "block");
             });
+            
+            // Handle confirmation
+            $("#confirm-remove").click(function() {
+                removeItemFromCart(itemToRemoveId, itemToRemoveType);
+            });
+        });
+        
+        // Close the modal
+        function closeModal() {
+            $("#confirmation-modal").css("display", "none");
+        }
+        
+        // Remove item from cart
+        function removeItemFromCart(itemId, itemType) {
+            let requestData = {};
+            if (itemType === "dog") {
+                requestData.dog_id = itemId;
+            } else if (itemType === "booking") {
+                requestData.booking_id = itemId;
+            }
+
+            $.ajax({
+                url: "/cart/remove",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(requestData),
+                success: function(response) {
+                    console.log("Server response:", response);
+                    
+                    // Close the modal first
+                    closeModal();
+                    
+                    // Show brief message
+                    const itemTypeCapitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
+                    
+                    // Add visual feedback before reload
+                    const itemElement = $(`.cart-item[data-id='${itemId}'][data-type='${itemType}']`);
+                    itemElement.fadeOut(300, function() {
+                        // Check if this was the last item
+                        if ($(".cart-item").length <= 1) {
+                            // If cart is now empty, redirect to home page after a delay
+                            setTimeout(() => {
+                                window.location.href = "/";
+                            }, 500);
+                        } else {
+                            // Otherwise just reload the cart page
+                            window.location.reload();
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error removing from cart:", error);
+                    closeModal();
+                    alert("Failed to remove " + itemType + " from cart. Try again!");
+                }
+            });
+        }
+        
+        // Close modal if clicked outside
+        $(window).click(function(event) {
+            if ($(event.target).is("#confirmation-modal")) {
+                closeModal();
+            }
         });
     </script>
     <script src="static/js/script.js"></script>
