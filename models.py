@@ -27,9 +27,9 @@ user_service_provider = db.Table(
 
 # ***************************************** User Table ************************************************
 class UserType(enum.Enum):
-    OWNER = "Pet Owner"
-    ADMIN = "Admin"
-    SERVICE_PROVIDER = "Service Provider"
+    OWNER = "PET OWNER"
+    ADMIN = "ADMIN"
+    SERVICE_PROVIDER = "SERVICE PROVIDER"
 
 class User(db.Model):
     __tablename__ = "user"
@@ -73,14 +73,15 @@ class Dogs(db.Model):
 
 # ****************************************** Service Provider Table *******************************************
 class ServiceProviderStatus(enum.Enum):
-    PENDING = "Pending"
-    ACCEPTED = "Accepted"
-    REJECTED = "Rejected"
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
 
 class ServiceProvider(db.Model):
     __tablename__ = "service_provider"
 
     service_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.String(36), db.ForeignKey("user.user_id"), nullable=False, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100), nullable=False)
     service_name = db.Column(db.String(60), nullable=False)
     address = db.Column(db.String(255), nullable=False)
@@ -98,7 +99,7 @@ class ServiceProvider(db.Model):
 
 #******************************************* Service table creation *********************************************
 class Service(db.Model):
-    __tablename__ = "service"
+    __tablename__ = "services"
 
     service_id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     service_name = db.Column(db.String(60), nullable=False)
@@ -144,8 +145,8 @@ class BookingDetail(db.Model):
 
 # ********************************************* Order Table **************************************************
 class PaymentStatus(enum.Enum):
-    PENDING = "Pending"
-    SUCCESS = "Success"
+    PENDING = "PENDING"
+    SUCCESS = "SUCCESS"
 
 class Order(db.Model):
     __tablename__ = "order"
@@ -208,6 +209,50 @@ class CartItem(db.Model):
     cart = db.relationship("Cart", back_populates="cart_items", lazy=True)
     def __repr__(self):
         return f"<CartItem {self.cart_item_id} - {self.quantity}>"
+
+#****************************************** Event Table ******************************************************
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    date = db.Column(db.String(50), nullable=False)
+    location=db.Column(db.String(250),nullable=False)
+    prizes=db.Column(db.String(200),nullable=False)
+    eligibility=db.Column(db.String(250),nullable=False)
+    fee = db.Column(db.Float, default=500)
+    image_filename = db.Column(db.String(200), nullable=False, default="default.jpg") 
+
+
+#****************************************** Registration Table ******************************************************
+
+class Registration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    pet_name = db.Column(db.String(100), nullable=False)
+    pet_type = db.Column(db.String(100), nullable=False)
+    pet_age=db.Column(db.Integer,nullable=False)
+    paid = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  
+    
+     # Relationship with Event
+    event = db.relationship('Event', backref=db.backref('registrations', lazy=True))
+
+    # Relationship with User 
+    user = db.relationship('User', backref=db.backref('registrations', lazy=True))
+
+#********************************************* Result Table *******************************************************
+
+class Result(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    registration_id = db.Column(db.Integer, db.ForeignKey('registration.id'), nullable=False, unique=True)
+    attended = db.Column(db.Boolean, default=False, nullable=False)  # Present or Absent
+    position = db.Column(db.Integer, nullable=True)  # 1,2,...
+    points = db.Column(db.Float, default=0)  # Optional: Track performance points
+    remarks = db.Column(db.Text, nullable=True)  # Any comments (e.g., "Great performance")
+
+    # Relationship with Registration
+    registration = db.relationship('Registration', backref=db.backref('result', uselist=False, lazy=True))
 
 
 with app.app_context():

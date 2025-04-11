@@ -314,7 +314,7 @@
                     alert("Order Failed: " + data.error);
                 } else {
                     alert("Order Placed Successfully!");
-                    document.getElementById("order-form").reset(); // ✅ Clear form after order
+                    document.getElementById("order-form").reset(); // Clear form after order
                     if (data.order_id) {
                         window.location.href = `/order-confirm?order_id=${data.order_id}`;
                     } else {
